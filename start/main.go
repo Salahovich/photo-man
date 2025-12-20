@@ -3,41 +3,35 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"image/draw"
-	"learn-repo/filters"
-	"learn-repo/gray_filters"
-	imageio "learn-repo/image_io"
+	filters2 "learn-repo/core/filters"
+	"learn-repo/core/gray_filters"
+	imageio "learn-repo/core/image_io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"runtime/pprof"
-	"time"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	a := app.New()
-	w := a.NewWindow("Hello")
+	myApp := app.New()
+	myWindow := myApp.NewWindow("TabContainer Widget")
 
-	output := canvas.NewText(time.Now().Format(time.TimeOnly), color.NRGBA{G: 0xff, A: 0xff})
-	output.TextStyle.Monospace = true
-	output.TextSize = 32
-	w.SetContent(output)
+	tabs := container.NewAppTabs(
+		container.NewTabItem("Tab 1", widget.NewLabel("Hello")),
+		container.NewTabItem("Tab 2", widget.NewLabel("World!")),
+	)
 
-	go func() {
-		ticker := time.NewTicker(time.Second)
-		for range ticker.C {
-			fyne.Do(func() {
-				output.Text = time.Now().Format(time.TimeOnly)
-				output.Refresh()
-			})
-		}
-	}()
-	w.ShowAndRun()
+	//tabs.Append(container.NewTabItemWithIcon("Home", theme.HomeIcon(), widget.NewLabel("Home tab")))
+
+	tabs.SetTabLocation(container.TabLocationLeading)
+
+	myWindow.SetContent(tabs)
+	myWindow.ShowAndRun()
 }
 
 func writeGrayImg(imageData image.Image, format, path string) *image.Gray {
@@ -53,7 +47,7 @@ func writeGrayImg(imageData image.Image, format, path string) *image.Gray {
 }
 func writeBlurGrayImg(blurGrayImg *image.Gray, format, path string) {
 	// write image
-	newImage := filters.SimpleBlur(blurGrayImg, filters.LOW_BLUR)
+	newImage := filters2.SimpleBlur(blurGrayImg, filters2.LOW_BLUR)
 	err := imageio.WriteImage(newImage, path, "gray-blur", format)
 	if err != nil {
 		fmt.Println(err)
@@ -63,7 +57,7 @@ func writeBlurGrayImg(blurGrayImg *image.Gray, format, path string) {
 }
 func writeSharpGrayImage(blurGrayImg *image.Gray, format, path string) {
 	// write image
-	newImage := filters.SharpImage(blurGrayImg, filters.MEDIUM_SHARP)
+	newImage := filters2.SharpImage(blurGrayImg, filters2.MEDIUM_SHARP)
 	err := imageio.WriteImage(newImage, path, "sharp-gray", format)
 	if err != nil {
 		fmt.Println(err)
@@ -73,7 +67,7 @@ func writeSharpGrayImage(blurGrayImg *image.Gray, format, path string) {
 }
 func writeEmbossGrayImage(blurGrayImg *image.Gray, format, path string) {
 	// write image
-	newImage := filters.EmbossImage(blurGrayImg, filters.STANDARD_EMBOSS)
+	newImage := filters2.EmbossImage(blurGrayImg, filters2.STANDARD_EMBOSS)
 	err := imageio.WriteImage(newImage, path, "emboss-gray", format)
 	if err != nil {
 		fmt.Println(err)
@@ -83,7 +77,7 @@ func writeEmbossGrayImage(blurGrayImg *image.Gray, format, path string) {
 }
 func writeSobelGrayImage(blurGrayImg *image.Gray, format, path string) {
 	// write image
-	newImage := filters.SobelImage(blurGrayImg, filters.RIGHT_SOBEL)
+	newImage := filters2.SobelImage(blurGrayImg, filters2.RIGHT_SOBEL)
 	err := imageio.WriteImage(newImage, path, "sobel-gray", format)
 	if err != nil {
 		fmt.Println(err)
@@ -93,7 +87,7 @@ func writeSobelGrayImage(blurGrayImg *image.Gray, format, path string) {
 }
 func writeOutlineGrayImage(blurGrayImg *image.Gray, format, path string) {
 	// write image
-	newImage := filters.OutlineImage(blurGrayImg, filters.STANDARD_OUTLINE)
+	newImage := filters2.OutlineImage(blurGrayImg, filters2.STANDARD_OUTLINE)
 	err := imageio.WriteImage(newImage, path, "outline-gray", format)
 	if err != nil {
 		fmt.Println(err)
@@ -103,7 +97,7 @@ func writeOutlineGrayImage(blurGrayImg *image.Gray, format, path string) {
 }
 func writeBlurRGBAImg(rgbImg image.Image, format, path string) {
 	// write image
-	newImage := filters.SimpleBlur(rgbImg, filters.HIGH_BLUR)
+	newImage := filters2.SimpleBlur(rgbImg, filters2.HIGH_BLUR)
 	err := imageio.WriteImage(newImage, path, "rgb-blur", format)
 	if err != nil {
 		fmt.Println(err)
@@ -113,7 +107,7 @@ func writeBlurRGBAImg(rgbImg image.Image, format, path string) {
 }
 func writeSharpRGBAImage(rgbImg image.Image, format, path string) {
 	// write image
-	newImage := filters.SharpImage(rgbImg, filters.LOW_SHARP)
+	newImage := filters2.SharpImage(rgbImg, filters2.LOW_SHARP)
 	err := imageio.WriteImage(newImage, path, "sharp-rgb", format)
 	if err != nil {
 		fmt.Println(err)
