@@ -2,7 +2,7 @@ package filters
 
 import (
 	"image"
-	"learn-repo/core/kernel_utils"
+	"photo-man/core/kernel_utils"
 )
 
 var low_blur_kernel = [][]float32{

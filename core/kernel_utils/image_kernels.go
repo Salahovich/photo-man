@@ -3,7 +3,7 @@ package kernel_utils
 import (
 	"image"
 	"image/color"
-	imgHelpers "learn-repo/core/image_io"
+	imgHelpers "photo-man/core/image_io"
 	"sync"
 )
 
