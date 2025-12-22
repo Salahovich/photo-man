@@ -3,6 +3,8 @@ package ui
 import (
 	"image/color"
 	"photo-man/assets"
+	event_actions "photo-man/event-actions"
+	"photo-man/state"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -11,10 +13,13 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func Toolbar() *fyne.Container {
+func Toolbar(st *state.AppState) *fyne.Container {
 
 	// props toolbar items
-	openItem := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {})
+	openItem := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
+		event_actions.OpenImageAction(st)
+	})
+
 	copyItem := widget.NewToolbarAction(theme.ContentCopyIcon(), func() {})
 	toolBarOne := widget.NewToolbar(openItem, copyItem)
 

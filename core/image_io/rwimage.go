@@ -8,6 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/kbinani/screenshot"
+	"golang.org/x/image/draw"
 )
 
 func ReadImage(filePath string) (image.Image, string, error) {
@@ -21,12 +24,11 @@ func ReadImage(filePath string) (image.Image, string, error) {
 		return nil, "", decodeErr
 	}
 
-	fileCloseErr := file.Close()
-	if fileCloseErr != nil {
+	if fileCloseErr := file.Close(); fileCloseErr != nil {
 		return nil, "", fileCloseErr
 	}
 
-	return imageData, format, nil
+	return ToRGBA(imageData), format, nil
 }
 
 func WriteImage(imageData image.Image, path, filterName, format string) error {
@@ -62,4 +64,43 @@ func WriteImage(imageData image.Image, path, filterName, format string) error {
 	}
 
 	return nil
+}
+
+func ToRGBA(img image.Image) image.Image {
+	if rgba, ok := img.(*image.RGBA); ok {
+		return rgba
+	}
+
+	bounds := img.Bounds()
+	newImg := image.NewRGBA(bounds)
+
+	draw.Draw(newImg, bounds, img, bounds.Min, draw.Src)
+
+	return newImg
+}
+
+func GetScreenSize() (int, int) {
+	bounds := screenshot.GetDisplayBounds(0)
+	return bounds.Dx(), bounds.Dy()
+}
+
+func Resize(src image.Image, newWidth, newHeight int) image.Image {
+	dst := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+	scaler := draw.CatmullRom
+	scaler.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
+
+	return dst
+}
+
+func Rescale(imageData image.Image) (bool, image.Image) {
+	screenWidth, screenHeight := GetScreenSize()
+	imgWidth, imgHeight := imageData.Bounds().Dx(), imageData.Bounds().Dy()
+
+	if imgWidth >= screenWidth || imgHeight >= screenHeight {
+		newImgWidth := screenWidth / 2
+		k := float32(newImgWidth) / float32(imgWidth)
+		newImgHeight := int(float32(imgHeight) * k)
+		return true, Resize(imageData, newImgWidth, newImgHeight)
+	}
+	return false, nil
 }

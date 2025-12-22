@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image/color"
+	"photo-man/state"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -16,9 +17,12 @@ func StartApp() {
 	masterWindow.Resize(fyne.NewSize(1400, 800))
 	masterWindow.SetPadded(false)
 
-	top := Toolbar()
-	middle := ViewPortContainer()
-	right := Sidebar()
+	appState := state.NewAppState()
+
+	middle := ViewPortContainer(appState)
+	right := Sidebar(appState)
+	top := Toolbar(appState)
+
 	splitter := container.NewHSplit(middle, right)
 	splitter.SetOffset(0.8)
 

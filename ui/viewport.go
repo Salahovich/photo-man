@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"image"
 	"photo-man/assets"
+	"photo-man/state"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -9,55 +11,54 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func ViewPortContainer() *fyne.Container {
-	vp := NewViewport()
-	return vp.Container
+func ViewPortContainer(st *state.AppState) *fyne.Container {
+	vp := NewViewport(st)
+	return vp.mainContainer
 }
 
 type Viewport struct {
-	Container   *fyne.Container // The main UI object to add to the window
-	imageView   *canvas.Image   // The actual photo
-	placeholder *fyne.Container // The "Open Photo" message
+	mainContainer *fyne.Container
+	imageView     *canvas.Image
+	placeholder   *fyne.Container
 }
 
-func NewViewport() *Viewport {
-	// 1. Create the Actual Image holder (Initially empty/nil)
-	img := canvas.NewImageFromResource(nil)
-	img.FillMode = canvas.ImageFillContain
+func NewViewport(st *state.AppState) *Viewport {
+	imgCanvas := canvas.NewImageFromResource(nil)
+	imgCanvas.FillMode = canvas.ImageFillOriginal
 
-	// 2. Create the Placeholder (The "Empty State")
-	// We use a VBox to stack the Icon above the Text
 	noPhotoIcon := canvas.NewImageFromResource(assets.NoPhoto)
-	noPhotoIcon.FillMode = canvas.ImageFillContain
+	noPhotoIcon.FillMode = canvas.ImageFillCover
 	noPhotoIcon.SetMinSize(fyne.NewSize(200, 200))
 	placeholderContent := container.NewVBox(
 		noPhotoIcon,
 		widget.NewLabelWithStyle("Click 'Open' to start editing", fyne.TextAlignCenter, fyne.TextStyle{}),
 	)
 
-	// Center the placeholder in the middle of the screen
 	placeholderWrapper := container.NewCenter(placeholderContent)
+	mainContainer := container.NewCenter(placeholderWrapper, imgCanvas)
 
-	containerWrapper := container.NewStack(placeholderWrapper, img)
-
-	return &Viewport{
-		Container:   containerWrapper,
-		imageView:   img,
-		placeholder: placeholderWrapper,
+	viewPortState := &Viewport{
+		mainContainer: mainContainer,
+		imageView:     imgCanvas,
+		placeholder:   placeholderWrapper,
 	}
+
+	st.RegisterListener(func(image image.Image) {
+		viewPortState.SetImage(image)
+	})
+
+	return viewPortState
 }
 
-// SetImage updates the viewport with a new photo
-func (v *Viewport) SetImage(res fyne.Resource) {
-	// Update the image source
-	v.imageView.Resource = res
-	v.imageView.Refresh()
+func (v *Viewport) SetImage(image image.Image) {
+	w, h := float32(image.Bounds().Dx()), float32(image.Bounds().Dy())
+	v.imageView.Image = image
+	v.imageView.SetMinSize(fyne.Size{Width: w, Height: h})
 
-	// Hide the placeholder text so only the photo is visible
+	v.imageView.Refresh()
 	v.placeholder.Hide()
 }
 
-// Clear removes the photo and shows the placeholder again
 func (v *Viewport) Clear() {
 	v.imageView.Resource = nil
 	v.imageView.Refresh()

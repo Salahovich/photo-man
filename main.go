@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/draw"
 	"os"
 	"path/filepath"
 	filters2 "photo-man/core/filters"
@@ -98,22 +97,6 @@ func writeSharpRGBAImage(rgbImg image.Image, format, path string) {
 		return
 	}
 	fmt.Printf("SHARP GREY IMAGE has been created at the directory: %v \n", filepath.Dir(path))
-}
-func ToRGBA(img image.Image) *image.RGBA {
-	// 1. If it's already RGBA, just return it
-	if rgba, ok := img.(*image.RGBA); ok {
-		return rgba
-	}
-
-	// 2. Create a new empty RGBA image with the same bounds
-	bounds := img.Bounds()
-	newImg := image.NewRGBA(bounds)
-
-	// 3. Draw the source image onto the new RGBA image
-	// This handles all the conversion math (YCbCr -> RGBA, etc.) for you
-	draw.Draw(newImg, bounds, img, bounds.Min, draw.Src)
-
-	return newImg
 }
 
 func startProfiling() {
