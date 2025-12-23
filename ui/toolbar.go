@@ -3,7 +3,7 @@ package ui
 import (
 	"image/color"
 	"photo-man/assets"
-	event_actions "photo-man/event-actions"
+	eventActions "photo-man/event-actions"
 	"photo-man/state"
 
 	"fyne.io/fyne/v2"
@@ -17,32 +17,42 @@ func Toolbar(st *state.AppState) *fyne.Container {
 
 	// props toolbar items
 	openItem := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
-		event_actions.OpenImageAction(st)
+		eventActions.OpenImageAction(st)
 	})
 
-	copyItem := widget.NewToolbarAction(theme.ContentCopyIcon(), func() {})
-	toolBarOne := widget.NewToolbar(openItem, copyItem)
+	copyItem := widget.NewToolbarAction(theme.ContentCopyIcon(), func() {
+		eventActions.CopyImageAction(st)
+	})
+	closeItem := widget.NewToolbarAction(theme.WindowCloseIcon(), func() {
+		eventActions.CloseImage(st)
+	})
+	resetItem := widget.NewToolbarAction(theme.ContentUndoIcon(), func() {
+		eventActions.ResetImage(st)
+	})
+	toolBarOne := widget.NewToolbar(openItem, copyItem, closeItem, resetItem)
 
 	// functionality toolbar items
-	cropItem := widget.NewToolbarAction(theme.ContentCutIcon(), func() {})
-	rotateLeftItem := widget.NewToolbarAction(theme.MediaPlayIcon(), func() {})
-	rotateRightItem := widget.NewToolbarAction(theme.ViewRefreshIcon(), func() {})
-	flipLeftItem := widget.NewToolbarAction(assets.FlipLeft, func() {})
-	flipRightItem := widget.NewToolbarAction(assets.FlipRight, func() {})
-	flipUpItem := widget.NewToolbarAction(assets.FlipUp, func() {})
-	flipDownItem := widget.NewToolbarAction(assets.FlipDown, func() {})
+	rotateLeftItem := widget.NewToolbarAction(theme.MediaReplayIcon(), func() {
+		eventActions.RotateAntiClockwiseAction(st)
+	})
+	rotateRightItem := widget.NewToolbarAction(theme.ViewRefreshIcon(), func() {
+		eventActions.RotateClockwiseAction(st)
+	})
+	flipHorizontallyItem := widget.NewToolbarAction(assets.FlipRight, func() {
+		eventActions.FlipHorizontallyAction(st)
+	})
+	flipVerticallyItem := widget.NewToolbarAction(assets.FlipDown, func() {
+		eventActions.FlipVerticallyAction(st)
+	})
 	toolBarTwo := widget.NewToolbar(
-		cropItem,
 		rotateLeftItem,
 		rotateRightItem,
-		flipLeftItem,
-		flipRightItem,
-		flipUpItem,
-		flipDownItem)
+		flipHorizontallyItem,
+		flipVerticallyItem)
 
 	// export toolbar items
 	exportItem := widget.NewToolbarAction(theme.DownloadIcon(), func() {
-		event_actions.ExportImageAction(st)
+		eventActions.ExportImageAction(st)
 	})
 	toolBarThree := widget.NewToolbar(exportItem)
 

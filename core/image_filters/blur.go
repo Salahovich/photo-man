@@ -1,4 +1,4 @@
-package filters
+package image_filters
 
 import (
 	"image"

@@ -15,16 +15,9 @@ func ApplyKernel(srcImg image.Image, kernel [][]float32) image.Image {
 	dy := len(kernel) / 2
 	kw := len(kernel)
 	kh := len(kernel[0])
-	newImg, _ := imgHelpers.InitImageInstance(srcImg)
+	newImg := image.NewRGBA(srcImg.Bounds())
 
-	switch newConcreteType := newImg.(type) {
-	case *image.Gray:
-		return applyGrayImageKernel(width, height, dx, dy, kw, kh, srcImg, newConcreteType, kernel)
-	case *image.RGBA:
-		return applyRGBAImageKernel(width, height, dx, dy, kw, kh, srcImg, newConcreteType, kernel)
-	default:
-		return nil
-	}
+	return applyRGBAImageKernel(width, height, dx, dy, kw, kh, srcImg, newImg, kernel)
 
 }
 

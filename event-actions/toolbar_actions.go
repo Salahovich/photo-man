@@ -1,12 +1,16 @@
 package event_actions
 
 import (
+	"bytes"
+	"image/png"
 	"os"
 	"photo-man/core/image_io"
+	"photo-man/core/image_transform"
 	"photo-man/state"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
+	"golang.design/x/clipboard"
 )
 
 func OpenImageAction(st *state.AppState) {
@@ -24,10 +28,9 @@ func OpenImageAction(st *state.AppState) {
 
 		st.SetFormat(format)
 		if ok, newImg := image_io.Rescale(img); ok {
-			st.SetOriginalImage(img)
-			st.SetImage(newImg)
+			st.SetImage(img, newImg)
 		} else {
-			st.SetImage(img)
+			st.SetImage(img, img)
 		}
 
 		if readerErr := reader.Close(); readerErr != nil {
@@ -38,6 +41,18 @@ func OpenImageAction(st *state.AppState) {
 	}, fyne.CurrentApp().Driver().AllWindows()[0])
 
 	fileDialog.Show()
+}
+
+func CopyImageAction(st *state.AppState) {
+	err := clipboard.Init()
+	if err != nil {
+		return
+	}
+	imgBuffer := new(bytes.Buffer)
+	if err := png.Encode(imgBuffer, st.GetCurrentImage()); err != nil {
+		return
+	}
+	clipboard.Write(clipboard.FmtImage, imgBuffer.Bytes())
 }
 
 func ExportImageAction(st *state.AppState) {
@@ -51,7 +66,7 @@ func ExportImageAction(st *state.AppState) {
 		if err := os.Remove(fileSavePath); err != nil {
 			return
 		}
-
+		st.ApplyAllModification()
 		if err := image_io.WriteImage(st.GetOriginalImage(), fileSavePath, st.GetFormat()); err != nil {
 			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
 		}
@@ -63,4 +78,33 @@ func ExportImageAction(st *state.AppState) {
 	}, fyne.CurrentApp().Driver().AllWindows()[0])
 
 	saveFileDialog.Show()
+}
+
+func ResetImage(st *state.AppState) {
+	st.UpdateSceneImage(st.GetScaledImage())
+}
+
+func CloseImage(st *state.AppState) {
+	st.SetImage(nil, nil)
+}
+
+func RotateClockwiseAction(st *state.AppState) {
+	rotImg := image_transform.RotateClockwise(st.GetCurrentImage())
+	st.RegisterListener(image_transform.RotateClockwise)
+	st.UpdateSceneImage(rotImg)
+}
+func RotateAntiClockwiseAction(st *state.AppState) {
+	rotImg := image_transform.RotateAntiClockwise(st.GetCurrentImage())
+	st.RegisterListener(image_transform.RotateAntiClockwise)
+	st.UpdateSceneImage(rotImg)
+}
+func FlipHorizontallyAction(st *state.AppState) {
+	flpImg := image_transform.FlipHorizontally(st.GetCurrentImage())
+	st.RegisterListener(image_transform.FlipHorizontally)
+	st.UpdateSceneImage(flpImg)
+}
+func FlipVerticallyAction(st *state.AppState) {
+	flpImg := image_transform.FlipVertically(st.GetCurrentImage())
+	st.RegisterListener(image_transform.FlipVertically)
+	st.UpdateSceneImage(flpImg)
 }

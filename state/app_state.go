@@ -7,41 +7,45 @@ import (
 
 type AppState struct {
 	currentImage  image.Image
+	scaledImage   image.Image
 	originalImage image.Image
 	mutex         sync.RWMutex
 	format        string
-	listeners     []func(image.Image)
+	listeners     []func(image.Image) image.Image
+	channel       chan image.Image
 }
 
 func NewAppState() *AppState {
 	return &AppState{
-		listeners: make([]func(image.Image), 0),
+		listeners: make([]func(image.Image) image.Image, 0),
+		channel:   make(chan image.Image),
 	}
 }
 
-func (s *AppState) SetImage(img image.Image) {
+func (s *AppState) UpdateSceneImage(img image.Image) {
 	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	s.currentImage = img
-	if s.originalImage == nil {
-		s.originalImage = img
-	}
-	s.mutex.Unlock()
-
-	s.notify()
+	s.channel <- s.currentImage
 }
 
-func (s *AppState) SetOriginalImage(img image.Image) {
-	s.originalImage = img
+func (s *AppState) SetImage(original image.Image, scaled image.Image) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.originalImage = original
+	s.scaledImage = scaled
+	s.currentImage = scaled
+	s.channel <- s.currentImage
 }
 
 func (s *AppState) SetFormat(format string) {
 	s.format = format
 }
 
-func (s *AppState) GetImage() image.Image {
+func (s *AppState) GetScaledImage() image.Image {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	return s.currentImage
+	return s.scaledImage
 }
 
 func (s *AppState) GetOriginalImage() image.Image {
@@ -50,20 +54,29 @@ func (s *AppState) GetOriginalImage() image.Image {
 	return s.originalImage
 }
 
+func (s *AppState) GetCurrentImage() image.Image {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	return s.currentImage
+}
+
 func (s *AppState) GetFormat() string {
 	return s.format
 }
 
-func (s *AppState) RegisterListener(callback func(image.Image)) {
+func (s *AppState) GetChannel() chan image.Image {
+	return s.channel
+}
+
+func (s *AppState) RegisterListener(callback func(image.Image) image.Image) {
 	s.listeners = append(s.listeners, callback)
 }
 
-func (s *AppState) notify() {
-	s.mutex.RLock()
-	defer s.mutex.RUnlock()
+func (s *AppState) ApplyAllModification() {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
 	for _, callback := range s.listeners {
-		// Call the function with the new image
-		callback(s.currentImage)
+		s.originalImage = callback(s.originalImage)
 	}
 }

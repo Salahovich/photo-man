@@ -4,36 +4,6 @@ import (
 	"image"
 )
 
-type COLOR_TYPE uint8
-
-const (
-	GRAY    COLOR_TYPE = 0
-	RGBA    COLOR_TYPE = 1
-	UNKNOWN COLOR_TYPE = 3
-)
-
-func ImageColorType(img image.Image) COLOR_TYPE {
-	switch img.(type) {
-	case *image.Gray:
-		return GRAY
-	case *image.RGBA:
-		return RGBA
-	default:
-		return UNKNOWN
-	}
-}
-
-func InitImageInstance(img image.Image) (image.Image, COLOR_TYPE) {
-	switch ImageColorType(img) {
-	case GRAY:
-		return image.NewGray(img.Bounds()), GRAY
-	case RGBA:
-		return image.NewRGBA(img.Bounds()), RGBA
-	default:
-		return nil, UNKNOWN
-	}
-}
-
 func GetRedValue(x, y int, img image.Image) uint8 {
 	r, _, _, _ := img.At(x, y).RGBA()
 	return uint8(r >> 8)

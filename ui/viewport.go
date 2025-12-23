@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"image"
 	"photo-man/assets"
 	"photo-man/state"
 
@@ -43,24 +42,34 @@ func NewViewport(st *state.AppState) *Viewport {
 		placeholder:   placeholderWrapper,
 	}
 
-	st.RegisterListener(func(image image.Image) {
-		viewPortState.SetImage(image)
-	})
-
+	viewPortState.UpdateViewPortImage(st)
 	return viewPortState
 }
 
-func (v *Viewport) SetImage(image image.Image) {
-	w, h := float32(image.Bounds().Dx()), float32(image.Bounds().Dy())
-	v.imageView.Image = image
-	v.imageView.SetMinSize(fyne.Size{Width: w, Height: h})
+func (v *Viewport) UpdateViewPortImage(st *state.AppState) {
+	go func() {
+		for image := range st.GetChannel() {
+			if image == nil {
+				fyne.Do(func() {
+					v.Clear()
+				})
+			} else {
+				w, h := float32(image.Bounds().Dx()), float32(image.Bounds().Dy())
+				fyne.Do(func() {
+					v.imageView.Image = image
+					v.imageView.SetMinSize(fyne.Size{Width: w, Height: h})
 
-	v.imageView.Refresh()
-	v.placeholder.Hide()
+					v.imageView.Refresh()
+					v.placeholder.Hide()
+				})
+			}
+
+		}
+	}()
 }
 
 func (v *Viewport) Clear() {
-	v.imageView.Resource = nil
+	v.imageView.Image = nil
 	v.imageView.Refresh()
 	v.placeholder.Show()
 }
