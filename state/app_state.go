@@ -9,8 +9,8 @@ type AppState struct {
 	currentImage  image.Image
 	originalImage image.Image
 	mutex         sync.RWMutex
-
-	listeners []func(image.Image)
+	format        string
+	listeners     []func(image.Image)
 }
 
 func NewAppState() *AppState {
@@ -31,15 +31,27 @@ func (s *AppState) SetImage(img image.Image) {
 }
 
 func (s *AppState) SetOriginalImage(img image.Image) {
-	s.mutex.Lock()
 	s.originalImage = img
-	s.mutex.Unlock()
+}
+
+func (s *AppState) SetFormat(format string) {
+	s.format = format
 }
 
 func (s *AppState) GetImage() image.Image {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	return s.currentImage
+}
+
+func (s *AppState) GetOriginalImage() image.Image {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	return s.originalImage
+}
+
+func (s *AppState) GetFormat() string {
+	return s.format
 }
 
 func (s *AppState) RegisterListener(callback func(image.Image)) {

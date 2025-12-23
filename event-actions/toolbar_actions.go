@@ -1,6 +1,7 @@
 package event_actions
 
 import (
+	"os"
 	"photo-man/core/image_io"
 	"photo-man/state"
 
@@ -15,11 +16,13 @@ func OpenImageAction(st *state.AppState) {
 		}
 
 		imagePath := reader.URI().Path()
-		img, _, err := image_io.ReadImage(imagePath)
-		if err != nil {
-			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
+		img, format, imgErr := image_io.ReadImage(imagePath)
+		if imgErr != nil {
+			dialog.ShowError(imgErr, fyne.CurrentApp().Driver().AllWindows()[0])
 			return
 		}
+
+		st.SetFormat(format)
 		if ok, newImg := image_io.Rescale(img); ok {
 			st.SetOriginalImage(img)
 			st.SetImage(newImg)
@@ -35,4 +38,29 @@ func OpenImageAction(st *state.AppState) {
 	}, fyne.CurrentApp().Driver().AllWindows()[0])
 
 	fileDialog.Show()
+}
+
+func ExportImageAction(st *state.AppState) {
+	saveFileDialog := dialog.NewFileSave(func(writer fyne.URIWriteCloser, err error) {
+		if writer == nil || err != nil {
+			return
+		}
+
+		// get the save file path and delete the new file created
+		fileSavePath := writer.URI().Path()
+		if err := os.Remove(fileSavePath); err != nil {
+			return
+		}
+
+		if err := image_io.WriteImage(st.GetOriginalImage(), fileSavePath, st.GetFormat()); err != nil {
+			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
+		}
+
+		if err := writer.Close(); err != nil {
+			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
+			return
+		}
+	}, fyne.CurrentApp().Driver().AllWindows()[0])
+
+	saveFileDialog.Show()
 }

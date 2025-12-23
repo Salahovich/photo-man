@@ -5,9 +5,8 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"math"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/kbinani/screenshot"
 	"golang.org/x/image/draw"
@@ -31,12 +30,8 @@ func ReadImage(filePath string) (image.Image, string, error) {
 	return ToRGBA(imageData), format, nil
 }
 
-func WriteImage(imageData image.Image, path, filterName, format string) error {
-	targetDir := filepath.Dir(path)
-	newName := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)) + "-" + filterName + filepath.Ext(path)
-	newPath := filepath.Join(targetDir, newName)
-
-	targetFile, createImageErr := os.Create(newPath)
+func WriteImage(imageData image.Image, path, format string) error {
+	targetFile, createImageErr := os.Create(path + format)
 	if createImageErr != nil {
 		return createImageErr
 	}
@@ -94,13 +89,19 @@ func Resize(src image.Image, newWidth, newHeight int) image.Image {
 
 func Rescale(imageData image.Image) (bool, image.Image) {
 	screenWidth, screenHeight := GetScreenSize()
-	imgWidth, imgHeight := imageData.Bounds().Dx(), imageData.Bounds().Dy()
+	imgWidth, imgHeight := float64(imageData.Bounds().Dx()), float64(imageData.Bounds().Dy())
+	newImgWidth, newImgHeight := imgWidth, imgHeight
+	ratio := math.Min(imgWidth/imgHeight, imgHeight/imgWidth)
+	doScale := false
 
-	if imgWidth >= screenWidth || imgHeight >= screenHeight {
-		newImgWidth := screenWidth / 2
-		k := float32(newImgWidth) / float32(imgWidth)
-		newImgHeight := int(float32(imgHeight) * k)
-		return true, Resize(imageData, newImgWidth, newImgHeight)
+	// rescale to get the suitable size for the screen
+	for newImgWidth >= float64(screenWidth) || newImgHeight >= float64(screenHeight) {
+		doScale = true
+		newImgWidth, newImgHeight = ratio*newImgWidth, ratio*newImgHeight
+	}
+
+	if doScale {
+		return true, Resize(imageData, int(newImgWidth), int(newImgHeight))
 	}
 	return false, nil
 }

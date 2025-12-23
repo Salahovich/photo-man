@@ -41,7 +41,9 @@ func Toolbar(st *state.AppState) *fyne.Container {
 		flipDownItem)
 
 	// export toolbar items
-	exportItem := widget.NewToolbarAction(theme.DownloadIcon(), func() {})
+	exportItem := widget.NewToolbarAction(theme.DownloadIcon(), func() {
+		event_actions.ExportImageAction(st)
+	})
 	toolBarThree := widget.NewToolbar(exportItem)
 
 	// separators
