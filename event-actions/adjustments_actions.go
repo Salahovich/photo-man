@@ -24,3 +24,23 @@ func DecreaseBrightnessAction(st *state.AppState, value int) {
 	st.CanvasState.RegisterModification(image_adjustments.DecreaseBrightness)
 	st.CanvasState.UpdateSceneImage(img)
 }
+
+func IncreaseContrastAction(st *state.AppState, value int) {
+	img := st.AdjustmentState.GetContrastValue(value)
+	if img == nil {
+		img = image_adjustments.IncreaseContrast(st.CanvasState.GetCurrentImage())
+		st.AdjustmentState.AddContrastValue(value, img)
+	}
+	st.CanvasState.RegisterModification(image_adjustments.IncreaseContrast)
+	st.CanvasState.UpdateSceneImage(img)
+}
+
+func DecreaseContrastAction(st *state.AppState, value int) {
+	img := st.AdjustmentState.GetContrastValue(value)
+	if img == nil {
+		img = image_adjustments.DecreaseContrast(st.CanvasState.GetCurrentImage())
+		st.AdjustmentState.AddContrastValue(value, img)
+	}
+	st.CanvasState.RegisterModification(image_adjustments.DecreaseContrast)
+	st.CanvasState.UpdateSceneImage(img)
+}

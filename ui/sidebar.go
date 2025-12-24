@@ -18,8 +18,8 @@ func Sidebar(st *state.AppState) *fyne.Container {
 
 	// adjustment accordion item
 	brightnessContainer, brightnessSlider := initBrightnessArea(st)
-	contrastContainer, contrastSlider := initContrastArea()
-	saturationContainer, saturationSlider := initSaturationArea()
+	contrastContainer, contrastSlider := initContrastArea(st)
+	saturationContainer, saturationSlider := initSaturationArea(st)
 
 	adjustmentsContainer := container.NewVBox(
 		brightnessContainer,
@@ -72,28 +72,40 @@ func initBrightnessArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	return brightnessContainer, brightnessSlider
 }
 
-func initContrastArea() (*fyne.Container, *widget.Slider) {
+func initContrastArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	contrastText := canvas.NewText("  Contrast", color.White)
 	contrastValue := canvas.NewText("50  ", color.White)
 	contrastContainer := container.NewBorder(nil, nil, contrastText, contrastValue, nil)
 	contrastSlider := widget.NewSlider(0, 100)
 	contrastSlider.SetValue(50)
 	contrastSlider.OnChanged = func(value float64) {
+		currentValue, _ := strconv.Atoi(strings.Trim(contrastValue.Text, " "))
 		contrastValue.Text = fmt.Sprintf("%d  ", int(value))
 		contrastValue.Refresh()
+		if int(value) > currentValue {
+			go event_actions.IncreaseContrastAction(st, int(value))
+		} else if int(value) < currentValue {
+			go event_actions.DecreaseContrastAction(st, int(value))
+		}
 	}
 	return contrastContainer, contrastSlider
 }
 
-func initSaturationArea() (*fyne.Container, *widget.Slider) {
+func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	saturationText := canvas.NewText("  Saturation", color.White)
 	saturationValue := canvas.NewText("50  ", color.White)
 	saturationContainer := container.NewBorder(nil, nil, saturationText, saturationValue, nil)
 	saturationSlider := widget.NewSlider(0, 100)
 	saturationSlider.SetValue(50)
 	saturationSlider.OnChanged = func(value float64) {
+		currentValue, _ := strconv.Atoi(strings.Trim(saturationValue.Text, " "))
 		saturationValue.Text = fmt.Sprintf("%d  ", int(value))
 		saturationValue.Refresh()
+		if int(value) > currentValue {
+			go event_actions.IncreaseContrastAction(st, int(value))
+		} else if int(value) < currentValue {
+			go event_actions.DecreaseContrastAction(st, int(value))
+		}
 	}
 
 	return saturationContainer, saturationSlider
