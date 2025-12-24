@@ -48,7 +48,7 @@ func NewViewport(st *state.AppState) *Viewport {
 
 func (v *Viewport) UpdateViewPortImage(st *state.AppState) {
 	go func() {
-		for image := range st.GetChannel() {
+		for image := range st.CanvasState.GetChannel() {
 			if image == nil {
 				fyne.Do(func() {
 					v.Clear()

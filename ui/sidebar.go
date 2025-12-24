@@ -3,7 +3,10 @@ package ui
 import (
 	"fmt"
 	"image/color"
+	event_actions "photo-man/event-actions"
 	"photo-man/state"
+	"strconv"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -14,7 +17,7 @@ import (
 func Sidebar(st *state.AppState) *fyne.Container {
 
 	// adjustment accordion item
-	brightnessContainer, brightnessSlider := initBrightnessArea()
+	brightnessContainer, brightnessSlider := initBrightnessArea(st)
 	contrastContainer, contrastSlider := initContrastArea()
 	saturationContainer, saturationSlider := initSaturationArea()
 
@@ -49,14 +52,21 @@ func Sidebar(st *state.AppState) *fyne.Container {
 	return container.NewStack(background, container.NewPadded(contentVBox))
 }
 
-func initBrightnessArea() (*fyne.Container, *widget.Slider) {
+func initBrightnessArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	brightnessText := canvas.NewText("  Brightness", color.White)
-	brightnessValue := canvas.NewText("0  ", color.White)
+	brightnessValue := canvas.NewText("50  ", color.White)
 	brightnessContainer := container.NewBorder(nil, nil, brightnessText, brightnessValue, nil)
 	brightnessSlider := widget.NewSlider(0, 100)
+	brightnessSlider.SetValue(50)
 	brightnessSlider.OnChanged = func(value float64) {
+		currentValue, _ := strconv.Atoi(strings.Trim(brightnessValue.Text, " "))
 		brightnessValue.Text = fmt.Sprintf("%d  ", int(value))
 		brightnessValue.Refresh()
+		if int(value) > currentValue {
+			go event_actions.IncreaseBrightnessAction(st, int(value))
+		} else if int(value) < currentValue {
+			go event_actions.DecreaseBrightnessAction(st, int(value))
+		}
 	}
 
 	return brightnessContainer, brightnessSlider
@@ -64,9 +74,10 @@ func initBrightnessArea() (*fyne.Container, *widget.Slider) {
 
 func initContrastArea() (*fyne.Container, *widget.Slider) {
 	contrastText := canvas.NewText("  Contrast", color.White)
-	contrastValue := canvas.NewText("0  ", color.White)
+	contrastValue := canvas.NewText("50  ", color.White)
 	contrastContainer := container.NewBorder(nil, nil, contrastText, contrastValue, nil)
 	contrastSlider := widget.NewSlider(0, 100)
+	contrastSlider.SetValue(50)
 	contrastSlider.OnChanged = func(value float64) {
 		contrastValue.Text = fmt.Sprintf("%d  ", int(value))
 		contrastValue.Refresh()
@@ -76,9 +87,10 @@ func initContrastArea() (*fyne.Container, *widget.Slider) {
 
 func initSaturationArea() (*fyne.Container, *widget.Slider) {
 	saturationText := canvas.NewText("  Saturation", color.White)
-	saturationValue := canvas.NewText("0  ", color.White)
+	saturationValue := canvas.NewText("50  ", color.White)
 	saturationContainer := container.NewBorder(nil, nil, saturationText, saturationValue, nil)
 	saturationSlider := widget.NewSlider(0, 100)
+	saturationSlider.SetValue(50)
 	saturationSlider.OnChanged = func(value float64) {
 		saturationValue.Text = fmt.Sprintf("%d  ", int(value))
 		saturationValue.Refresh()
