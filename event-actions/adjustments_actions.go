@@ -44,3 +44,23 @@ func DecreaseContrastAction(st *state.AppState, value int) {
 	st.CanvasState.RegisterModification(image_adjustments.DecreaseContrast)
 	st.CanvasState.UpdateSceneImage(img)
 }
+
+func IncreaseSaturationAction(st *state.AppState, value int) {
+	img := st.AdjustmentState.GetSaturationValue(value)
+	if img == nil {
+		img = image_adjustments.IncreaseSaturation(st.CanvasState.GetCurrentImage())
+		st.AdjustmentState.AddSaturationValue(value, img)
+	}
+	st.CanvasState.RegisterModification(image_adjustments.IncreaseSaturation)
+	st.CanvasState.UpdateSceneImage(img)
+}
+
+func DecreaseSaturationAction(st *state.AppState, value int) {
+	img := st.AdjustmentState.GetSaturationValue(value)
+	if img == nil {
+		img = image_adjustments.DecreaseSaturation(st.CanvasState.GetCurrentImage())
+		st.AdjustmentState.AddSaturationValue(value, img)
+	}
+	st.CanvasState.RegisterModification(image_adjustments.DecreaseSaturation)
+	st.CanvasState.UpdateSceneImage(img)
+}

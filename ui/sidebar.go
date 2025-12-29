@@ -102,9 +102,9 @@ func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 		saturationValue.Text = fmt.Sprintf("%d  ", int(value))
 		saturationValue.Refresh()
 		if int(value) > currentValue {
-			go event_actions.IncreaseContrastAction(st, int(value))
+			go event_actions.IncreaseSaturationAction(st, int(value))
 		} else if int(value) < currentValue {
-			go event_actions.DecreaseContrastAction(st, int(value))
+			go event_actions.DecreaseSaturationAction(st, int(value))
 		}
 	}
 
