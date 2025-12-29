@@ -8,19 +8,19 @@ import (
 )
 
 var (
-	brightnessValue = 3.0
+	brightnessValue = 1000.0
 )
 
 func IncreaseBrightness(img image.Image) image.Image {
-	newImg := image.NewRGBA(img.Bounds())
+	newImg := image.NewRGBA64(img.Bounds())
 	wg := sync.WaitGroup{}
 	wg.Add(img.Bounds().Dy())
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		go func(y int) {
 			defer wg.Done()
 			for x := 0; x < img.Bounds().Dx(); x++ {
-				newColor := adjustPixel(img.At(x, y), brightnessValue)
-				newImg.Set(x, y, newColor)
+				newColor := adjustBrightnessPixel(img.At(x, y), brightnessValue)
+				newImg.SetRGBA64(x, y, newColor)
 			}
 		}(y)
 	}
@@ -29,15 +29,15 @@ func IncreaseBrightness(img image.Image) image.Image {
 }
 
 func DecreaseBrightness(img image.Image) image.Image {
-	newImg := image.NewRGBA(img.Bounds())
+	newImg := image.NewRGBA64(img.Bounds())
 	wg := sync.WaitGroup{}
 	wg.Add(img.Bounds().Dy())
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		go func(y int) {
 			defer wg.Done()
 			for x := 0; x < img.Bounds().Dx(); x++ {
-				newColor := adjustPixel(img.At(x, y), -brightnessValue)
-				newImg.Set(x, y, newColor)
+				newColor := adjustBrightnessPixel(img.At(x, y), -brightnessValue)
+				newImg.SetRGBA64(x, y, newColor)
 			}
 		}(y)
 	}
@@ -45,12 +45,12 @@ func DecreaseBrightness(img image.Image) image.Image {
 	return newImg
 }
 
-func adjustPixel(rgba color.Color, brightnessFactor float64) color.RGBA {
+func adjustBrightnessPixel(rgba color.Color, brightnessFactor float64) color.RGBA64 {
 	r, g, b, a := rgba.RGBA()
-	r_, g_, b_, a_ := float64(r>>8), float64(g>>8), float64(b>>8), float64(a>>8)
-	r_ = math.Max(0, math.Min(255, brightnessFactor+r_))
-	g_ = math.Max(0, math.Min(255, brightnessFactor+g_))
-	b_ = math.Max(0, math.Min(255, brightnessFactor+b_))
+	r_, g_, b_, a_ := float64(r), float64(g), float64(b), float64(a)
+	r_ = math.Max(0, math.Min(65535, brightnessFactor+r_))
+	g_ = math.Max(0, math.Min(65535, brightnessFactor+g_))
+	b_ = math.Max(0, math.Min(65535, brightnessFactor+b_))
 
-	return color.RGBA{R: uint8(r_), G: uint8(g_), B: uint8(b_), A: uint8(a_)}
+	return color.RGBA64{R: uint16(r_), G: uint16(g_), B: uint16(b_), A: uint16(a_)}
 }
