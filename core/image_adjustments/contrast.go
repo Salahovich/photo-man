@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// contrast level ranges from -255.0 to 255.0
 var (
 	contrastIncreaseLevel  = 4.0
 	contrastIncreaseFactor = (259.0 * (contrastIncreaseLevel + 255)) / (255.0 * (259 - contrastIncreaseLevel))

@@ -20,8 +20,9 @@ func RotateAntiClockwise(img image.Image) image.Image {
 	newImg := image.NewRGBA(image.Rect(0, 0, rows, cols))
 	for y := 0; y < rows; y++ {
 		for x := 0; x < cols; x++ {
-			newImg.Set(y, x, img.At(x, y))
+			newImg.Set(y, (cols-x)-1, img.At(x, y))
 		}
 	}
+
 	return newImg
 }
