@@ -28,9 +28,29 @@ func Sidebar(st *state.AppState) *fyne.Container {
 		saturationSlider)
 	adjustments := widget.NewAccordionItem("Adjustments", adjustmentsContainer)
 
-	// filter accordion item
-	filtersContainer := initFiltersArea()
-	filters := widget.NewAccordionItem("Filters", filtersContainer)
+	// basic filter accordion item
+	blurContainer, blurSlider := initBlurArea(st)
+	embossContainer, embossSlider := initEmbossArea(st)
+	outlineContainer, outlineSlider := initOutlineArea(st)
+	sharpeningContainer, sharpeningSlider := initSharpeningArea(st)
+	sobelContainer, sobelSlider := initSobelArea(st)
+
+	basicFiltersContainer := container.NewVBox(
+		blurContainer,
+		blurSlider,
+		embossContainer,
+		embossSlider,
+		outlineContainer,
+		outlineSlider,
+		sharpeningContainer,
+		sharpeningSlider,
+		sobelContainer,
+		sobelSlider)
+	basicFilters := widget.NewAccordionItem("Basic Filters", basicFiltersContainer)
+
+	// predefined-filters accordion item
+	predefinedFiltersContainer := initFiltersArea()
+	predefinedFilters := widget.NewAccordionItem("Predefined Filters", predefinedFiltersContainer)
 
 	// metadata accordion item
 	metadataContainer := initMetadataArea()
@@ -40,8 +60,8 @@ func Sidebar(st *state.AppState) *fyne.Container {
 	separator.SetMinSize(fyne.NewSize(1, 1))
 
 	sideTitle := widget.NewLabelWithStyle("Tools", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	accordion := widget.NewAccordion(adjustments, filters, metadata)
-	accordion.MultiOpen = true
+	accordion := widget.NewAccordion(adjustments, basicFilters, predefinedFilters, metadata)
+	accordion.MultiOpen = false
 
 	contentVBox := container.NewVBox(sideTitle, separator, accordion)
 	bgColor := color.RGBA{R: 62, G: 62, B: 62, A: 255}
@@ -95,6 +115,86 @@ func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	}
 
 	return saturationContainer, saturationSlider
+}
+
+func initBlurArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+	blurText := canvas.NewText("  Blur", color.White)
+	blurValue := canvas.NewText("0  ", color.White)
+	blurContainer := container.NewBorder(nil, nil, blurText, blurValue, nil)
+	blurSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Blur)
+	blurSlider.SetValue(0)
+	blurSlider.OnChanged = func(value float64) {
+		blurValue.Text = fmt.Sprintf("%d ", int(value))
+		st.BasicFilterState.SetBlur(value)
+		blurValue.Refresh()
+		go event_actions.UpdateAdjustments(st)
+	}
+
+	return blurContainer, blurSlider
+}
+
+func initEmbossArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+	embossText := canvas.NewText("  Emboss", color.White)
+	embossValue := canvas.NewText("0  ", color.White)
+	embossContainer := container.NewBorder(nil, nil, embossText, embossValue, nil)
+	embossSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Emboss)
+	embossSlider.SetValue(0)
+	embossSlider.OnChanged = func(value float64) {
+		embossValue.Text = fmt.Sprintf("%d ", int(value))
+		st.BasicFilterState.SetEmboss(value)
+		embossValue.Refresh()
+		go event_actions.UpdateAdjustments(st)
+	}
+
+	return embossContainer, embossSlider
+}
+
+func initOutlineArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+	outlineText := canvas.NewText("  Outline", color.White)
+	outlineValue := canvas.NewText("0  ", color.White)
+	outlineContainer := container.NewBorder(nil, nil, outlineText, outlineValue, nil)
+	outlineSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Outline)
+	outlineSlider.SetValue(0)
+	outlineSlider.OnChanged = func(value float64) {
+		outlineValue.Text = fmt.Sprintf("%d ", int(value))
+		st.BasicFilterState.SetOutline(value)
+		outlineValue.Refresh()
+		go event_actions.UpdateAdjustments(st)
+	}
+
+	return outlineContainer, outlineSlider
+}
+
+func initSharpeningArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+	sharpeningText := canvas.NewText("  Sharpening", color.White)
+	sharpeningValue := canvas.NewText("0  ", color.White)
+	sharpeningContainer := container.NewBorder(nil, nil, sharpeningText, sharpeningValue, nil)
+	sharpeningSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Sharpening)
+	sharpeningSlider.SetValue(0)
+	sharpeningSlider.OnChanged = func(value float64) {
+		sharpeningValue.Text = fmt.Sprintf("%d ", int(value))
+		st.BasicFilterState.SetSharpening(value)
+		sharpeningValue.Refresh()
+		go event_actions.UpdateAdjustments(st)
+	}
+
+	return sharpeningContainer, sharpeningSlider
+}
+
+func initSobelArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+	sobelText := canvas.NewText("  Sobel", color.White)
+	sobelValue := canvas.NewText("0  ", color.White)
+	sobelContainer := container.NewBorder(nil, nil, sobelText, sobelValue, nil)
+	sobelSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Sobel)
+	sobelSlider.SetValue(0)
+	sobelSlider.OnChanged = func(value float64) {
+		sobelValue.Text = fmt.Sprintf("%d ", int(value))
+		st.BasicFilterState.SetSobel(value)
+		sobelValue.Refresh()
+		go event_actions.UpdateAdjustments(st)
+	}
+
+	return sobelContainer, sobelSlider
 }
 
 func initFiltersArea() *fyne.Container {

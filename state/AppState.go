@@ -12,6 +12,7 @@ type AppState struct {
 	CanvasState       *CanvasState
 	AdjustmentState   *AdjustmentState
 	AdjustmentFactors *AdjustmentFactors
+	BasicFilterState  *BasicFilterState
 	transformations   []func(image.Image) image.Image
 }
 
@@ -26,6 +27,13 @@ func NewAppState() *AppState {
 			Contrast:   binding.NewFloat(),
 			Saturation: binding.NewFloat(),
 		},
+		BasicFilterState: &BasicFilterState{
+			Blur:       binding.NewFloat(),
+			Emboss:     binding.NewFloat(),
+			Outline:    binding.NewFloat(),
+			Sharpening: binding.NewFloat(),
+			Sobel:      binding.NewFloat(),
+		},
 		AdjustmentFactors: &AdjustmentFactors{
 			BaseBrightnessFactor: 1000.0,
 			BaseContrastFactor:   5.1,
@@ -37,6 +45,7 @@ func NewAppState() *AppState {
 		transformations: make([]func(image.Image) image.Image, 0),
 	}
 	newState.AdjustmentState.InitAdjustmentsState()
+	newState.BasicFilterState.InitBasicFilterState()
 
 	return &newState
 }
@@ -65,4 +74,5 @@ func (s *AppState) ApplyAllModification() {
 func (s *AppState) Reset() {
 	s.AdjustmentState.InitAdjustmentsState()
 	s.AdjustmentFactors.InitAdjustmentsFactors()
+	s.BasicFilterState.InitBasicFilterState()
 }

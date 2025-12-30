@@ -33,6 +33,7 @@ func OpenImageAction(st *state.AppState) {
 		} else {
 			st.CanvasState.SetImage(img, img)
 		}
+		st.Reset()
 
 		if readerErr := reader.Close(); readerErr != nil {
 			dialog.ShowError(readerErr, fyne.CurrentApp().Driver().AllWindows()[0])
@@ -88,20 +89,20 @@ func ExportImageAction(st *state.AppState) {
 }
 
 func ResetImage(st *state.AppState) {
+	st.Reset()
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	st.CanvasState.UpdateSceneImage(st.CanvasState.GetScaledImage())
-	st.Reset()
 }
 
 func CloseImage(st *state.AppState) {
+	st.Reset()
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	st.CanvasState.SetImageInCanvs(false)
 	st.CanvasState.SetImage(nil, nil)
-	st.Reset()
 }
 
 func RotateClockwiseAction(st *state.AppState) {
