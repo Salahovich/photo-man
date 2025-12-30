@@ -5,8 +5,6 @@ import (
 	"image/color"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
-	"strconv"
-	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -59,14 +57,10 @@ func initBrightnessArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	brightnessSlider := widget.NewSlider(0, 100)
 	brightnessSlider.SetValue(50)
 	brightnessSlider.OnChanged = func(value float64) {
-		currentValue, _ := strconv.Atoi(strings.Trim(brightnessValue.Text, " "))
-		brightnessValue.Text = fmt.Sprintf("%d  ", int(value))
+		brightnessValue.Text = fmt.Sprintf("%d ", int(value))
+		st.AdjustmentState.SetBrightness(value)
 		brightnessValue.Refresh()
-		if int(value) > currentValue {
-			go event_actions.IncreaseBrightnessAction(st, int(value))
-		} else if int(value) < currentValue {
-			go event_actions.DecreaseBrightnessAction(st, int(value))
-		}
+		go event_actions.UpdateAdjustments(st)
 	}
 
 	return brightnessContainer, brightnessSlider
@@ -79,14 +73,10 @@ func initContrastArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	contrastSlider := widget.NewSlider(0, 100)
 	contrastSlider.SetValue(50)
 	contrastSlider.OnChanged = func(value float64) {
-		currentValue, _ := strconv.Atoi(strings.Trim(contrastValue.Text, " "))
-		contrastValue.Text = fmt.Sprintf("%d  ", int(value))
+		contrastValue.Text = fmt.Sprintf("%d ", int(value))
+		st.AdjustmentState.SetContrast(value)
 		contrastValue.Refresh()
-		if int(value) > currentValue {
-			go event_actions.IncreaseContrastAction(st, int(value))
-		} else if int(value) < currentValue {
-			go event_actions.DecreaseContrastAction(st, int(value))
-		}
+		go event_actions.UpdateAdjustments(st)
 	}
 	return contrastContainer, contrastSlider
 }
@@ -98,14 +88,10 @@ func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	saturationSlider := widget.NewSlider(0, 100)
 	saturationSlider.SetValue(50)
 	saturationSlider.OnChanged = func(value float64) {
-		currentValue, _ := strconv.Atoi(strings.Trim(saturationValue.Text, " "))
-		saturationValue.Text = fmt.Sprintf("%d  ", int(value))
+		saturationValue.Text = fmt.Sprintf("%d ", int(value))
+		st.AdjustmentState.SetSaturation(value)
 		saturationValue.Refresh()
-		if int(value) > currentValue {
-			go event_actions.IncreaseSaturationAction(st, int(value))
-		} else if int(value) < currentValue {
-			go event_actions.DecreaseSaturationAction(st, int(value))
-		}
+		go event_actions.UpdateAdjustments(st)
 	}
 
 	return saturationContainer, saturationSlider

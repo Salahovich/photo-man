@@ -1,60 +1,25 @@
 package state
 
-import "image"
+import "math"
 
 type AdjustmentState struct {
-	Brightness [100]image.Image
-	Contrast   [100]image.Image
-	Saturation [100]image.Image
+	Brightness float64
+	Contrast   float64
+	Saturation float64
 }
 
-func (as *AdjustmentState) AddBrightnessValue(value int, img image.Image) {
-	value--
-	if value < 0 {
-		value = 0
-	}
-	as.Brightness[value] = img
+func (as *AdjustmentState) SetBrightness(brightness float64) {
+	as.Brightness = math.Max(0, math.Min(100, brightness))
 }
-func (as *AdjustmentState) GetBrightnessValue(value int) image.Image {
-	value--
-	if value < 0 {
-		value = 0
-	}
-	return as.Brightness[value]
+func (as *AdjustmentState) SetSaturation(saturation float64) {
+	as.Saturation = math.Max(0, math.Min(100, saturation))
 }
-
-func (as *AdjustmentState) AddContrastValue(value int, img image.Image) {
-	value--
-	if value < 0 {
-		value = 0
-	}
-	as.Contrast[value] = img
-}
-func (as *AdjustmentState) GetContrastValue(value int) image.Image {
-	value--
-	if value < 0 {
-		value = 0
-	}
-	return as.Contrast[value]
-}
-
-func (as *AdjustmentState) AddSaturationValue(value int, img image.Image) {
-	value--
-	if value < 0 {
-		value = 0
-	}
-	as.Saturation[value] = img
-}
-func (as *AdjustmentState) GetSaturationValue(value int) image.Image {
-	value--
-	if value < 0 {
-		value = 0
-	}
-	return as.Saturation[value]
+func (as *AdjustmentState) SetContrast(contrast float64) {
+	as.Contrast = math.Max(0, math.Min(100, contrast))
 }
 
 func (as *AdjustmentState) ResetAdjustments() {
-	as.Brightness = [100]image.Image{}
-	as.Contrast = [100]image.Image{}
-	as.Saturation = [100]image.Image{}
+	as.Brightness = 50
+	as.Contrast = 50
+	as.Saturation = 50
 }

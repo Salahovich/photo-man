@@ -7,11 +7,7 @@ import (
 	"sync"
 )
 
-var (
-	brightnessValue = 1000.0
-)
-
-func IncreaseBrightness(img image.Image) image.Image {
+func UpdateBrightness(img image.Image, scaler float64) image.Image {
 	newImg := image.NewRGBA64(img.Bounds())
 	wg := sync.WaitGroup{}
 	wg.Add(img.Bounds().Dy())
@@ -19,24 +15,7 @@ func IncreaseBrightness(img image.Image) image.Image {
 		go func(y int) {
 			defer wg.Done()
 			for x := 0; x < img.Bounds().Dx(); x++ {
-				newColor := adjustBrightnessPixel(img.At(x, y), brightnessValue)
-				newImg.SetRGBA64(x, y, newColor)
-			}
-		}(y)
-	}
-	wg.Wait()
-	return newImg
-}
-
-func DecreaseBrightness(img image.Image) image.Image {
-	newImg := image.NewRGBA64(img.Bounds())
-	wg := sync.WaitGroup{}
-	wg.Add(img.Bounds().Dy())
-	for y := 0; y < img.Bounds().Dy(); y++ {
-		go func(y int) {
-			defer wg.Done()
-			for x := 0; x < img.Bounds().Dx(); x++ {
-				newColor := adjustBrightnessPixel(img.At(x, y), -brightnessValue)
+				newColor := adjustBrightnessPixel(img.At(x, y), scaler)
 				newImg.SetRGBA64(x, y, newColor)
 			}
 		}(y)

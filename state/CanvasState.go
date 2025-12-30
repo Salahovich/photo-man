@@ -9,9 +9,8 @@ type CanvasState struct {
 	currentImage  image.Image
 	scaledImage   image.Image
 	originalImage image.Image
-	modifications []func(image.Image) image.Image
 	communication chan image.Image
-	canvasMutex   sync.RWMutex
+	canvasMutex   *sync.RWMutex
 	format        string
 }
 
@@ -33,13 +32,6 @@ func (c *CanvasState) SetImage(original image.Image, scaled image.Image) {
 
 func (c *CanvasState) GetChannel() chan image.Image {
 	return c.communication
-}
-
-func (c *CanvasState) RegisterModification(callback func(image.Image) image.Image) {
-	c.modifications = append(c.modifications, callback)
-}
-func (c *CanvasState) ResetModifications() {
-	c.modifications = make([]func(image2 image.Image) image.Image, 0)
 }
 
 func (c *CanvasState) SetFormat(format string) {
@@ -64,15 +56,9 @@ func (c *CanvasState) GetCurrentImage() image.Image {
 	return c.currentImage
 }
 
+func (c *CanvasState) GetCanvasMutex() *sync.RWMutex {
+	return c.canvasMutex
+}
 func (c *CanvasState) GetFormat() string {
 	return c.format
-}
-
-func (c *CanvasState) ApplyAllModification() {
-	c.canvasMutex.Lock()
-	defer c.canvasMutex.Unlock()
-
-	for _, callback := range c.modifications {
-		c.originalImage = callback(c.originalImage)
-	}
 }

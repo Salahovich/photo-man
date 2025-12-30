@@ -8,14 +8,8 @@ import (
 )
 
 // contrast level ranges from -255.0 to 255.0
-var (
-	contrastIncreaseLevel  = 4.0
-	contrastIncreaseFactor = (259.0 * (contrastIncreaseLevel + 255)) / (255.0 * (259 - contrastIncreaseLevel))
-	contrastDecreaseLevel  = -4.0
-	contrastDecreaseFactor = (259.0 * (contrastDecreaseLevel + 255)) / (255.0 * (259 - contrastDecreaseLevel))
-)
 
-func IncreaseContrast(img image.Image) image.Image {
+func UpdateContrast(img image.Image, scaler float64) image.Image {
 	newImg := image.NewRGBA64(img.Bounds())
 	wg := sync.WaitGroup{}
 	wg.Add(img.Bounds().Dy())
@@ -23,24 +17,7 @@ func IncreaseContrast(img image.Image) image.Image {
 		go func(y int) {
 			defer wg.Done()
 			for x := 0; x < img.Bounds().Dx(); x++ {
-				newColor := adjustContrastPixel(img.At(x, y), contrastIncreaseFactor)
-				newImg.SetRGBA64(x, y, newColor)
-			}
-		}(y)
-	}
-	wg.Wait()
-	return newImg
-}
-
-func DecreaseContrast(img image.Image) image.Image {
-	newImg := image.NewRGBA64(img.Bounds())
-	wg := sync.WaitGroup{}
-	wg.Add(img.Bounds().Dy())
-	for y := 0; y < img.Bounds().Dy(); y++ {
-		go func(y int) {
-			defer wg.Done()
-			for x := 0; x < img.Bounds().Dx(); x++ {
-				newColor := adjustContrastPixel(img.At(x, y), contrastDecreaseFactor)
+				newColor := adjustContrastPixel(img.At(x, y), scaler)
 				newImg.SetRGBA64(x, y, newColor)
 			}
 		}(y)

@@ -5,62 +5,28 @@ import (
 	"photo-man/state"
 )
 
-func IncreaseBrightnessAction(st *state.AppState, value int) {
-	img := st.AdjustmentState.GetBrightnessValue(value)
-	if img == nil {
-		img = image_adjustments.IncreaseBrightness(st.CanvasState.GetCurrentImage())
-		st.AdjustmentState.AddBrightnessValue(value, img)
-	}
-	st.CanvasState.RegisterModification(image_adjustments.IncreaseBrightness)
-	st.CanvasState.UpdateSceneImage(img)
-}
+func UpdateAdjustments(st *state.AppState) {
+	adj := st.AdjustmentState
+	newImg := st.CanvasState.GetScaledImage()
 
-func DecreaseBrightnessAction(st *state.AppState, value int) {
-	img := st.AdjustmentState.GetBrightnessValue(value)
-	if img == nil {
-		img = image_adjustments.DecreaseBrightness(st.CanvasState.GetCurrentImage())
-		st.AdjustmentState.AddBrightnessValue(value, img)
+	if adj.Brightness != 50.0 {
+		scaler := (adj.Brightness - 50.0) * st.AdjustmentFactors.BaseBrightnessFactor
+		st.AdjustmentFactors.BrightnessFactor = scaler
+		newImg = image_adjustments.UpdateBrightness(newImg, scaler)
 	}
-	st.CanvasState.RegisterModification(image_adjustments.DecreaseBrightness)
-	st.CanvasState.UpdateSceneImage(img)
-}
 
-func IncreaseContrastAction(st *state.AppState, value int) {
-	img := st.AdjustmentState.GetContrastValue(value)
-	if img == nil {
-		img = image_adjustments.IncreaseContrast(st.CanvasState.GetCurrentImage())
-		st.AdjustmentState.AddContrastValue(value, img)
+	if adj.Contrast != 50.0 {
+		correctionFactor := (adj.Contrast - 50.0) * st.AdjustmentFactors.BaseContrastFactor
+		scaler := (259.0 * (correctionFactor + 255.0)) / (255.0 * (259.0 - correctionFactor))
+		st.AdjustmentFactors.ContrastFactor = scaler
+		newImg = image_adjustments.UpdateContrast(newImg, scaler)
 	}
-	st.CanvasState.RegisterModification(image_adjustments.IncreaseContrast)
-	st.CanvasState.UpdateSceneImage(img)
-}
 
-func DecreaseContrastAction(st *state.AppState, value int) {
-	img := st.AdjustmentState.GetContrastValue(value)
-	if img == nil {
-		img = image_adjustments.DecreaseContrast(st.CanvasState.GetCurrentImage())
-		st.AdjustmentState.AddContrastValue(value, img)
+	if adj.Saturation != 50.0 {
+		scaler := (adj.Saturation - 50.0) * st.AdjustmentFactors.BaseSaturationFactor
+		st.AdjustmentFactors.SaturationFactor = scaler
+		newImg = image_adjustments.UpdateSaturation(newImg, scaler)
 	}
-	st.CanvasState.RegisterModification(image_adjustments.DecreaseContrast)
-	st.CanvasState.UpdateSceneImage(img)
-}
 
-func IncreaseSaturationAction(st *state.AppState, value int) {
-	img := st.AdjustmentState.GetSaturationValue(value)
-	if img == nil {
-		img = image_adjustments.IncreaseSaturation(st.CanvasState.GetCurrentImage())
-		st.AdjustmentState.AddSaturationValue(value, img)
-	}
-	st.CanvasState.RegisterModification(image_adjustments.IncreaseSaturation)
-	st.CanvasState.UpdateSceneImage(img)
-}
-
-func DecreaseSaturationAction(st *state.AppState, value int) {
-	img := st.AdjustmentState.GetSaturationValue(value)
-	if img == nil {
-		img = image_adjustments.DecreaseSaturation(st.CanvasState.GetCurrentImage())
-		st.AdjustmentState.AddSaturationValue(value, img)
-	}
-	st.CanvasState.RegisterModification(image_adjustments.DecreaseSaturation)
-	st.CanvasState.UpdateSceneImage(img)
+	st.CanvasState.UpdateSceneImage(newImg)
 }
