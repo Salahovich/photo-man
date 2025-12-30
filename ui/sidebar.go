@@ -54,7 +54,7 @@ func initBrightnessArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	brightnessText := canvas.NewText("  Brightness", color.White)
 	brightnessValue := canvas.NewText("50  ", color.White)
 	brightnessContainer := container.NewBorder(nil, nil, brightnessText, brightnessValue, nil)
-	brightnessSlider := widget.NewSlider(0, 100)
+	brightnessSlider := widget.NewSliderWithData(0, 100, st.AdjustmentState.Brightness)
 	brightnessSlider.SetValue(50)
 	brightnessSlider.OnChanged = func(value float64) {
 		brightnessValue.Text = fmt.Sprintf("%d ", int(value))
@@ -70,7 +70,7 @@ func initContrastArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	contrastText := canvas.NewText("  Contrast", color.White)
 	contrastValue := canvas.NewText("50  ", color.White)
 	contrastContainer := container.NewBorder(nil, nil, contrastText, contrastValue, nil)
-	contrastSlider := widget.NewSlider(0, 100)
+	contrastSlider := widget.NewSliderWithData(0, 100, st.AdjustmentState.Contrast)
 	contrastSlider.SetValue(50)
 	contrastSlider.OnChanged = func(value float64) {
 		contrastValue.Text = fmt.Sprintf("%d ", int(value))
@@ -85,7 +85,7 @@ func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	saturationText := canvas.NewText("  Saturation", color.White)
 	saturationValue := canvas.NewText("50  ", color.White)
 	saturationContainer := container.NewBorder(nil, nil, saturationText, saturationValue, nil)
-	saturationSlider := widget.NewSlider(0, 100)
+	saturationSlider := widget.NewSliderWithData(0, 100, st.AdjustmentState.Saturation)
 	saturationSlider.SetValue(50)
 	saturationSlider.OnChanged = func(value float64) {
 		saturationValue.Text = fmt.Sprintf("%d ", int(value))

@@ -4,6 +4,8 @@ import (
 	"image"
 	"photo-man/core/image_adjustments"
 	"sync"
+
+	"fyne.io/fyne/v2/data/binding"
 )
 
 type AppState struct {
@@ -20,9 +22,9 @@ func NewAppState() *AppState {
 			canvasMutex:   &sync.RWMutex{},
 		},
 		AdjustmentState: &AdjustmentState{
-			Brightness: 50,
-			Contrast:   50,
-			Saturation: 50,
+			Brightness: binding.NewFloat(),
+			Contrast:   binding.NewFloat(),
+			Saturation: binding.NewFloat(),
 		},
 		AdjustmentFactors: &AdjustmentFactors{
 			BaseBrightnessFactor: 1000.0,
@@ -34,6 +36,7 @@ func NewAppState() *AppState {
 		},
 		transformations: make([]func(image.Image) image.Image, 0),
 	}
+	newState.AdjustmentState.InitAdjustmentsState()
 
 	return &newState
 }
@@ -60,18 +63,6 @@ func (s *AppState) ApplyAllModification() {
 }
 
 func (s *AppState) Reset() {
-	s.AdjustmentState.ResetAdjustments()
-	s.InitAdjustmentsValues()
-	s.InitAdjustmentsFactors()
-}
-
-func (s *AppState) InitAdjustmentsValues() {
-	s.AdjustmentState.Brightness = 50
-	s.AdjustmentState.Contrast = 50
-	s.AdjustmentState.Saturation = 50
-}
-func (s *AppState) InitAdjustmentsFactors() {
-	s.AdjustmentFactors.BrightnessFactor = 0
-	s.AdjustmentFactors.ContrastFactor = 1
-	s.AdjustmentFactors.SaturationFactor = 0
+	s.AdjustmentState.InitAdjustmentsState()
+	s.AdjustmentFactors.InitAdjustmentsFactors()
 }

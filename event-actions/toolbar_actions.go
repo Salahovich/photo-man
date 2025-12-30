@@ -26,6 +26,7 @@ func OpenImageAction(st *state.AppState) {
 			return
 		}
 
+		st.CanvasState.SetImageInCanvs(true)
 		st.CanvasState.SetFormat(format)
 		if ok, newImg := image_io.Rescale(img); ok {
 			st.CanvasState.SetImage(img, newImg)
@@ -49,6 +50,9 @@ func CopyImageAction(st *state.AppState) {
 		return
 	}
 	imgBuffer := new(bytes.Buffer)
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	if err := png.Encode(imgBuffer, st.CanvasState.GetCurrentImage()); err != nil {
 		return
 	}
@@ -56,6 +60,9 @@ func CopyImageAction(st *state.AppState) {
 }
 
 func ExportImageAction(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	saveFileDialog := dialog.NewFileSave(func(writer fyne.URIWriteCloser, err error) {
 		if writer == nil || err != nil {
 			return
@@ -81,31 +88,50 @@ func ExportImageAction(st *state.AppState) {
 }
 
 func ResetImage(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	st.CanvasState.UpdateSceneImage(st.CanvasState.GetScaledImage())
 	st.Reset()
 }
 
 func CloseImage(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
+	st.CanvasState.SetImageInCanvs(false)
 	st.CanvasState.SetImage(nil, nil)
 	st.Reset()
 }
 
 func RotateClockwiseAction(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	rotImg := image_transform.RotateClockwise(st.CanvasState.GetCurrentImage())
 	st.RegisterTransformation(image_transform.RotateClockwise)
 	st.CanvasState.UpdateSceneImage(rotImg)
 }
 func RotateAntiClockwiseAction(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	rotImg := image_transform.RotateAntiClockwise(st.CanvasState.GetCurrentImage())
 	st.RegisterTransformation(image_transform.RotateAntiClockwise)
 	st.CanvasState.UpdateSceneImage(rotImg)
 }
 func FlipHorizontallyAction(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	flpImg := image_transform.FlipHorizontally(st.CanvasState.GetCurrentImage())
 	st.RegisterTransformation(image_transform.FlipHorizontally)
 	st.CanvasState.UpdateSceneImage(flpImg)
 }
 func FlipVerticallyAction(st *state.AppState) {
+	if !st.CanvasState.IsImageInCanvas() {
+		return
+	}
 	flpImg := image_transform.FlipVertically(st.CanvasState.GetCurrentImage())
 	st.RegisterTransformation(image_transform.FlipVertically)
 	st.CanvasState.UpdateSceneImage(flpImg)

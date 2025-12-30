@@ -8,3 +8,9 @@ type AdjustmentFactors struct {
 	BaseContrastFactor   float64
 	BaseSaturationFactor float64
 }
+
+func (adjf *AdjustmentFactors) InitAdjustmentsFactors() {
+	adjf.BrightnessFactor = 0
+	adjf.ContrastFactor = 1
+	adjf.SaturationFactor = 0
+}

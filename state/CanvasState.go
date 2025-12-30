@@ -6,6 +6,7 @@ import (
 )
 
 type CanvasState struct {
+	imageInCanvas bool
 	currentImage  image.Image
 	scaledImage   image.Image
 	originalImage image.Image
@@ -61,4 +62,12 @@ func (c *CanvasState) GetCanvasMutex() *sync.RWMutex {
 }
 func (c *CanvasState) GetFormat() string {
 	return c.format
+}
+
+func (c *CanvasState) IsImageInCanvas() bool {
+	return c.imageInCanvas
+}
+
+func (c *CanvasState) SetImageInCanvs(isIn bool) {
+	c.imageInCanvas = isIn
 }
