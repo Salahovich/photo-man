@@ -71,3 +71,7 @@ func (c *CanvasState) IsImageInCanvas() bool {
 func (c *CanvasState) SetImageInCanvs(isIn bool) {
 	c.imageInCanvas = isIn
 }
+
+func (c *CanvasState) SetScaledImage(img image.Image) {
+	c.scaledImage = img
+}

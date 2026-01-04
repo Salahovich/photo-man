@@ -13,7 +13,7 @@ const (
 
 var standardOutlineKernel = [][]float32{
 	{-1.0, -1.0, -1.0},
-	{-1.0, 8, -1.0},
+	{-1.0, 9, -1.0},
 	{-1.0, -1.0, -1.0}}
 
 func OutlineImage(old image.Image, quality OUTLINE_QUALITY) image.Image {
@@ -21,6 +21,6 @@ func OutlineImage(old image.Image, quality OUTLINE_QUALITY) image.Image {
 	case STANDARD_OUTLINE:
 		return kernel_utils.ApplyKernel(old, standardOutlineKernel)
 	default:
-		return kernel_utils.ApplyKernel(old, standardOutlineKernel)
+		return old
 	}
 }

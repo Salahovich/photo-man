@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"image/color"
+	"photo-man/core/image_filters"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
 
@@ -29,23 +30,23 @@ func Sidebar(st *state.AppState) *fyne.Container {
 	adjustments := widget.NewAccordionItem("Adjustments", adjustmentsContainer)
 
 	// basic filter accordion item
-	blurContainer, blurSlider := initBlurArea(st)
-	embossContainer, embossSlider := initEmbossArea(st)
-	outlineContainer, outlineSlider := initOutlineArea(st)
-	sharpeningContainer, sharpeningSlider := initSharpeningArea(st)
-	sobelContainer, sobelSlider := initSobelArea(st)
+	blurContainer := initBlurArea(st)
+	embossContainer := initEmbossArea(st)
+	outlineContainer := initOutlineArea(st)
+	sharpeningContainer := initSharpeningArea(st)
+	sobelContainer := initSobelArea(st)
 
 	basicFiltersContainer := container.NewVBox(
 		blurContainer,
-		blurSlider,
+		widget.NewSeparator(),
 		embossContainer,
-		embossSlider,
+		widget.NewSeparator(),
 		outlineContainer,
-		outlineSlider,
+		widget.NewSeparator(),
 		sharpeningContainer,
-		sharpeningSlider,
-		sobelContainer,
-		sobelSlider)
+		widget.NewSeparator(),
+		sobelContainer)
+
 	basicFilters := widget.NewAccordionItem("Basic Filters", basicFiltersContainer)
 
 	// predefined-filters accordion item
@@ -80,7 +81,7 @@ func initBrightnessArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 		brightnessValue.Text = fmt.Sprintf("%d ", int(value))
 		st.AdjustmentState.SetBrightness(value)
 		brightnessValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
+		go event_actions.PerformEdit(st)
 	}
 
 	return brightnessContainer, brightnessSlider
@@ -96,7 +97,7 @@ func initContrastArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 		contrastValue.Text = fmt.Sprintf("%d ", int(value))
 		st.AdjustmentState.SetContrast(value)
 		contrastValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
+		go event_actions.PerformEdit(st)
 	}
 	return contrastContainer, contrastSlider
 }
@@ -111,90 +112,99 @@ func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 		saturationValue.Text = fmt.Sprintf("%d ", int(value))
 		st.AdjustmentState.SetSaturation(value)
 		saturationValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
+		go event_actions.PerformEdit(st)
 	}
 
 	return saturationContainer, saturationSlider
 }
 
-func initBlurArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+func initBlurArea(st *state.AppState) *fyne.Container {
 	blurText := canvas.NewText("  Blur", color.White)
-	blurValue := canvas.NewText("0  ", color.White)
-	blurContainer := container.NewBorder(nil, nil, blurText, blurValue, nil)
-	blurSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Blur)
-	blurSlider.SetValue(0)
-	blurSlider.OnChanged = func(value float64) {
-		blurValue.Text = fmt.Sprintf("%d ", int(value))
-		st.BasicFilterState.SetBlur(value)
-		blurValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
-	}
+	lowButton := widget.NewButton("LOW", func() {
+		st.BasicFilterState.SetBlurQuality(image_filters.LOW_BLUR)
+		go event_actions.PerformEdit(st)
+	})
+	medButton := widget.NewButton("MED", func() {
+		st.BasicFilterState.SetBlurQuality(image_filters.MEDIUM_BLUR)
+		go event_actions.PerformEdit(st)
+	})
+	highButton := widget.NewButton("HIGH", func() {
+		st.BasicFilterState.SetBlurQuality(image_filters.HIGH_BLUR)
+		go event_actions.PerformEdit(st)
+	})
 
-	return blurContainer, blurSlider
+	container := container.NewBorder(nil, nil, blurText, container.NewHBox(lowButton, medButton, highButton))
+	return container
 }
 
-func initEmbossArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+func initEmbossArea(st *state.AppState) *fyne.Container {
 	embossText := canvas.NewText("  Emboss", color.White)
-	embossValue := canvas.NewText("0  ", color.White)
-	embossContainer := container.NewBorder(nil, nil, embossText, embossValue, nil)
-	embossSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Emboss)
-	embossSlider.SetValue(0)
-	embossSlider.OnChanged = func(value float64) {
-		embossValue.Text = fmt.Sprintf("%d ", int(value))
-		st.BasicFilterState.SetEmboss(value)
-		embossValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
-	}
-
-	return embossContainer, embossSlider
+	lightButton := widget.NewButton("LIGHT", func() {
+		st.BasicFilterState.SetEmbossQuality(image_filters.LIGHT_EMBOSS)
+		go event_actions.PerformEdit(st)
+	})
+	darkButton := widget.NewButton("DARK", func() {
+		st.BasicFilterState.SetEmbossQuality(image_filters.DARK_EMBOSS)
+		go event_actions.PerformEdit(st)
+	})
+	heavyButton := widget.NewButton("HEAVY", func() {
+		st.BasicFilterState.SetEmbossQuality(image_filters.HEAVY_EMBOSS)
+		go event_actions.PerformEdit(st)
+	})
+	container := container.NewBorder(nil, nil, embossText, container.NewHBox(lightButton, heavyButton, darkButton))
+	return container
 }
 
-func initOutlineArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
+func initOutlineArea(st *state.AppState) *fyne.Container {
 	outlineText := canvas.NewText("  Outline", color.White)
-	outlineValue := canvas.NewText("0  ", color.White)
-	outlineContainer := container.NewBorder(nil, nil, outlineText, outlineValue, nil)
-	outlineSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Outline)
-	outlineSlider.SetValue(0)
-	outlineSlider.OnChanged = func(value float64) {
-		outlineValue.Text = fmt.Sprintf("%d ", int(value))
-		st.BasicFilterState.SetOutline(value)
-		outlineValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
-	}
+	standardButton := widget.NewButton("STANDARD", func() {
+		st.BasicFilterState.SetOutlineQuality(image_filters.STANDARD_OUTLINE)
+		go event_actions.PerformEdit(st)
+	})
 
-	return outlineContainer, outlineSlider
+	container := container.NewBorder(nil, nil, outlineText, container.NewHBox(standardButton))
+	return container
 }
 
-func initSharpeningArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
-	sharpeningText := canvas.NewText("  Sharpening", color.White)
-	sharpeningValue := canvas.NewText("0  ", color.White)
-	sharpeningContainer := container.NewBorder(nil, nil, sharpeningText, sharpeningValue, nil)
-	sharpeningSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Sharpening)
-	sharpeningSlider.SetValue(0)
-	sharpeningSlider.OnChanged = func(value float64) {
-		sharpeningValue.Text = fmt.Sprintf("%d ", int(value))
-		st.BasicFilterState.SetSharpening(value)
-		sharpeningValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
-	}
+func initSharpeningArea(st *state.AppState) *fyne.Container {
+	blurText := canvas.NewText("  Sharpening", color.White)
+	lowButton := widget.NewButton("LOW", func() {
+		st.BasicFilterState.SetSharpeningQuality(image_filters.LOW_SHARP)
+		go event_actions.PerformEdit(st)
+	})
+	medButton := widget.NewButton("MED", func() {
+		st.BasicFilterState.SetSharpeningQuality(image_filters.MEDIUM_SHARP)
+		go event_actions.PerformEdit(st)
+	})
+	highButton := widget.NewButton("HIGH", func() {
+		st.BasicFilterState.SetSharpeningQuality(image_filters.HIGH_SHARP)
+		go event_actions.PerformEdit(st)
+	})
 
-	return sharpeningContainer, sharpeningSlider
+	container := container.NewBorder(nil, nil, blurText, container.NewHBox(lowButton, medButton, highButton))
+	return container
 }
 
-func initSobelArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
-	sobelText := canvas.NewText("  Sobel", color.White)
-	sobelValue := canvas.NewText("0  ", color.White)
-	sobelContainer := container.NewBorder(nil, nil, sobelText, sobelValue, nil)
-	sobelSlider := widget.NewSliderWithData(0, 100, st.BasicFilterState.Sobel)
-	sobelSlider.SetValue(0)
-	sobelSlider.OnChanged = func(value float64) {
-		sobelValue.Text = fmt.Sprintf("%d ", int(value))
-		st.BasicFilterState.SetSobel(value)
-		sobelValue.Refresh()
-		go event_actions.UpdateAdjustments(st)
-	}
-
-	return sobelContainer, sobelSlider
+func initSobelArea(st *state.AppState) *fyne.Container {
+	blurText := canvas.NewText("  Sobel", color.White)
+	leftButton := widget.NewButton("LEFT", func() {
+		st.BasicFilterState.SetSobelQuality(image_filters.LEFT_SOBEL)
+		go event_actions.PerformEdit(st)
+	})
+	topButton := widget.NewButton("TOP", func() {
+		st.BasicFilterState.SetSobelQuality(image_filters.TOP_SOBEL)
+		go event_actions.PerformEdit(st)
+	})
+	rightButton := widget.NewButton("RIGHT", func() {
+		st.BasicFilterState.SetSobelQuality(image_filters.RIGHT_SOBEL)
+		go event_actions.PerformEdit(st)
+	})
+	bottomButton := widget.NewButton("BOTTOM", func() {
+		st.BasicFilterState.SetSobelQuality(image_filters.BOTTOM_SOBEL)
+		go event_actions.PerformEdit(st)
+	})
+	container := container.NewBorder(nil, nil, blurText, container.NewHBox(leftButton, topButton, rightButton, bottomButton))
+	return container
 }
 
 func initFiltersArea() *fyne.Container {

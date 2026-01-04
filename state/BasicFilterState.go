@@ -1,38 +1,43 @@
 package state
 
 import (
-	"math"
-
-	"fyne.io/fyne/v2/data/binding"
+	"photo-man/core/image_filters"
 )
 
 type BasicFilterState struct {
-	Blur       binding.Float
-	Emboss     binding.Float
-	Outline    binding.Float
-	Sharpening binding.Float
-	Sobel      binding.Float
+	Blur       image_filters.BLUR_QUALITY
+	Emboss     image_filters.EMBOSS_QUALITY
+	Outline    image_filters.OUTLINE_QUALITY
+	Sharpening image_filters.SHARPENING_QUALITY
+	Sobel      image_filters.SOBEL_DIRECTION
 }
 
-func (bfs *BasicFilterState) SetBlur(blur float64) {
-	bfs.Blur.Set(math.Max(0, math.Min(100, blur)))
+func (bfs *BasicFilterState) SetBlurQuality(quality image_filters.BLUR_QUALITY) {
+	// reset filters value to apply one filter at a time
+	bfs.InitBasicFilterState()
+	bfs.Blur = quality
 }
-func (bfs *BasicFilterState) SetEmboss(emboss float64) {
-	bfs.Emboss.Set(math.Max(0, math.Min(100, emboss)))
+func (bfs *BasicFilterState) SetEmbossQuality(quality image_filters.EMBOSS_QUALITY) {
+	bfs.InitBasicFilterState()
+	bfs.Emboss = quality
 }
-func (bfs *BasicFilterState) SetOutline(outline float64) {
-	bfs.Outline.Set(math.Max(0, math.Min(100, outline)))
+func (bfs *BasicFilterState) SetOutlineQuality(quality image_filters.OUTLINE_QUALITY) {
+	bfs.InitBasicFilterState()
+	bfs.Outline = quality
 }
-func (bfs *BasicFilterState) SetSharpening(sharpening float64) {
-	bfs.Sharpening.Set(math.Max(0, math.Min(100, sharpening)))
+func (bfs *BasicFilterState) SetSharpeningQuality(quality image_filters.SHARPENING_QUALITY) {
+	bfs.InitBasicFilterState()
+	bfs.Sharpening = quality
 }
-func (bfs *BasicFilterState) SetSobel(sobel float64) {
-	bfs.Sobel.Set(math.Max(0, math.Min(100, sobel)))
+func (bfs *BasicFilterState) SetSobelQuality(direction image_filters.SOBEL_DIRECTION) {
+	bfs.InitBasicFilterState()
+	bfs.Sobel = direction
 }
+
 func (bfs *BasicFilterState) InitBasicFilterState() {
-	bfs.Blur.Set(50)
-	bfs.Emboss.Set(50)
-	bfs.Outline.Set(50)
-	bfs.Sharpening.Set(50)
-	bfs.Sobel.Set(50)
+	bfs.Blur = 0
+	bfs.Emboss = 0
+	bfs.Outline = 0
+	bfs.Sharpening = 0
+	bfs.Sobel = 0
 }

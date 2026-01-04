@@ -4,23 +4,24 @@ import (
 	"image"
 )
 
-func GetRedValue(x, y int, img image.Image) uint8 {
+func GetRedValue(x, y int, img image.Image) uint16 {
 	r, _, _, _ := img.At(x, y).RGBA()
-	return uint8(r >> 8)
+	return uint16(r)
 }
-func GetGreenValue(x, y int, img image.Image) uint8 {
+func GetGreenValue(x, y int, img image.Image) uint16 {
 	_, g, _, _ := img.At(x, y).RGBA()
-	return uint8(g >> 8)
+	return uint16(g)
 }
-func GetBlueValue(x, y int, img image.Image) uint8 {
+func GetBlueValue(x, y int, img image.Image) uint16 {
 	_, _, b, _ := img.At(x, y).RGBA()
-	return uint8(b >> 8)
+	return uint16(b)
 }
-func GetAlphaValue(x, y int, img image.Image) uint8 {
+func GetAlphaValue(x, y int, img image.Image) uint16 {
 	_, _, _, a := img.At(x, y).RGBA()
-	return uint8(a >> 8)
+	return uint16(a)
 }
-func GetGrayValue(x, y int, img image.Image) uint8 {
+func GetGrayValue(x, y int, img image.Image) uint16 {
 	concrete, _ := img.(*image.Gray)
-	return concrete.GrayAt(x, y).Y
+	r, _, _, _ := concrete.GrayAt(x, y).RGBA()
+	return uint16(r)
 }

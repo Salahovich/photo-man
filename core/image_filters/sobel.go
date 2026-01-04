@@ -1,6 +1,7 @@
 package image_filters
 
 import (
+	"fmt"
 	"image"
 	"photo-man/core/kernel_utils"
 )
@@ -32,6 +33,7 @@ var rightSobelKernel = [][]float32{
 	{-1.0, 0.0, 1.0}}
 
 func SobelImage(old image.Image, direction SOBEL_DIRECTION) image.Image {
+	fmt.Println(old.Bounds())
 	switch direction {
 	case TOP_SOBEL:
 		return kernel_utils.ApplyKernel(old, topSobelKernel)
@@ -42,6 +44,6 @@ func SobelImage(old image.Image, direction SOBEL_DIRECTION) image.Image {
 	case RIGHT_SOBEL:
 		return kernel_utils.ApplyKernel(old, rightSobelKernel)
 	default:
-		return kernel_utils.ApplyKernel(old, topSobelKernel)
+		return old
 	}
 }
