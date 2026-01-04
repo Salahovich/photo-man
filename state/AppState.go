@@ -3,6 +3,8 @@ package state
 import (
 	"image"
 	"photo-man/core/image_adjustments"
+	"photo-man/core/image_filters"
+	"photo-man/core/image_transform"
 	"sync"
 
 	"fyne.io/fyne/v2/data/binding"
@@ -12,7 +14,8 @@ type AppState struct {
 	CanvasState       *CanvasState
 	AdjustmentState   *AdjustmentState
 	AdjustmentFactors *AdjustmentFactors
-	transformations   []func(image.Image) image.Image
+	BasicFilterState  *BasicFilterState
+	Transformations   *TransformationState
 }
 
 func NewAppState() *AppState {
@@ -26,6 +29,12 @@ func NewAppState() *AppState {
 			Contrast:   binding.NewFloat(),
 			Saturation: binding.NewFloat(),
 		},
+		BasicFilterState: &BasicFilterState{
+			Blur:       0,
+			Emboss:     0,
+			Outline:    0,
+			Sharpening: 0,
+		},
 		AdjustmentFactors: &AdjustmentFactors{
 			BaseBrightnessFactor: 1000.0,
 			BaseContrastFactor:   5.1,
@@ -34,35 +43,55 @@ func NewAppState() *AppState {
 			ContrastFactor:       1.0,
 			SaturationFactor:     0.0,
 		},
-		transformations: make([]func(image.Image) image.Image, 0),
+		Transformations: &TransformationState{
+			Rotate:         0,
+			FlipVertical:   false,
+			FlipHorizontal: false,
+		},
 	}
 	newState.AdjustmentState.InitAdjustmentsState()
 
 	return &newState
 }
 
-func (s *AppState) RegisterTransformation(callback func(image.Image) image.Image) {
-	s.transformations = append(s.transformations, callback)
-}
+func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
+	img := s.CanvasState.GetOriginalImage()
 
-func (s *AppState) ResetTransformation() {
-	s.transformations = make([]func(image2 image.Image) image.Image, 0)
-}
-
-func (s *AppState) ApplyAllModification() {
-	s.CanvasState.GetCanvasMutex().Lock()
-	defer s.CanvasState.GetCanvasMutex().Unlock()
-
-	s.CanvasState.originalImage = image_adjustments.UpdateBrightness(s.CanvasState.originalImage, s.AdjustmentFactors.BrightnessFactor)
-	s.CanvasState.originalImage = image_adjustments.UpdateContrast(s.CanvasState.originalImage, s.AdjustmentFactors.ContrastFactor)
-	s.CanvasState.originalImage = image_adjustments.UpdateSaturation(s.CanvasState.originalImage, s.AdjustmentFactors.SaturationFactor)
-
-	for _, callback := range s.transformations {
-		s.CanvasState.originalImage = callback(s.CanvasState.originalImage)
+	// rotate the image
+	if s.Transformations.Rotate < 0 {
+		img = image_transform.RotateClockwise(img)
+	} else if s.Transformations.Rotate > 0 {
+		for range s.Transformations.Rotate {
+			img = image_transform.RotateAntiClockwise(img)
+		}
 	}
+
+	// flip the image
+	if s.Transformations.FlipHorizontal {
+		img = image_transform.FlipHorizontally(img)
+	}
+	if s.Transformations.FlipVertical {
+		img = image_transform.FlipVertically(img)
+	}
+
+	// filter the image
+	img = image_filters.GaussianBlur(img, s.BasicFilterState.Blur)
+	img = image_filters.EmbossImage(img, s.BasicFilterState.Emboss)
+	img = image_filters.OutlineImage(img, s.BasicFilterState.Outline)
+	img = image_filters.SharpImage(img, s.BasicFilterState.Sharpening)
+	img = image_filters.SobelImage(img, s.BasicFilterState.Sobel)
+
+	// adjust the image
+	img = image_adjustments.UpdateBrightness(img, s.AdjustmentFactors.BrightnessFactor)
+	img = image_adjustments.UpdateContrast(img, s.AdjustmentFactors.ContrastFactor)
+	img = image_adjustments.UpdateSaturation(img, s.AdjustmentFactors.SaturationFactor)
+
+	return img
 }
 
 func (s *AppState) Reset() {
 	s.AdjustmentState.InitAdjustmentsState()
 	s.AdjustmentFactors.InitAdjustmentsFactors()
+	s.BasicFilterState.InitBasicFilterState()
+	s.Transformations.InitTransformations()
 }

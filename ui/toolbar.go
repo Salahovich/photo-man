@@ -33,17 +33,24 @@ func Toolbar(st *state.AppState) *fyne.Container {
 
 	// functionality toolbar items
 	rotateLeftItem := widget.NewToolbarAction(theme.MediaReplayIcon(), func() {
-		eventActions.RotateAntiClockwiseAction(st)
+		st.Transformations.RotateAntiClockwise()
+		go eventActions.RotateAntiClockwiseAction(st)
 	})
 	rotateRightItem := widget.NewToolbarAction(theme.ViewRefreshIcon(), func() {
-		eventActions.RotateClockwiseAction(st)
+		st.Transformations.RotateClockwise()
+		go eventActions.RotateClockwiseAction(st)
+
 	})
 	flipHorizontallyItem := widget.NewToolbarAction(assets.FlipRight, func() {
-		eventActions.FlipHorizontallyAction(st)
+		st.Transformations.FlipHorizontally()
+		go eventActions.FlipHorizontallyAction(st)
+
 	})
 	flipVerticallyItem := widget.NewToolbarAction(assets.FlipDown, func() {
-		eventActions.FlipVerticallyAction(st)
+		st.Transformations.FlipHVertically()
+		go eventActions.FlipVerticallyAction(st)
 	})
+
 	toolBarTwo := widget.NewToolbar(
 		rotateLeftItem,
 		rotateRightItem,

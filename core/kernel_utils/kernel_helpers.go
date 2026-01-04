@@ -7,7 +7,7 @@ func spotKernelWindow(
 	dx, dy int,
 	kw, kh int,
 	img image.Image,
-	getColor func(x, y int, img image.Image) uint8,
+	getColor func(x, y int, img image.Image) uint16,
 	edgeHandler func(window [][]int32) ([][]int32, int)) ([][]int32, int) {
 
 	img.ColorModel()
@@ -90,22 +90,22 @@ func multiply(window [][]int32, kernel [][]float32) [][]float32 {
 	return result
 }
 
-func normalizeWindow(window [][]float32) uint8 {
+func normalizeWindow(window [][]float32) uint16 {
 	var pixel float32
 	for i := 0; i < len(window); i++ {
 		for j := 0; j < len(window[i]); j++ {
 			pixel += window[i][j]
 		}
 	}
-	if pixel > 255 {
-		pixel = 255
+	if pixel > 65535 {
+		pixel = 65535
 	} else if pixel < 0 {
 		pixel = 0
 	}
-	return uint8(pixel)
+	return uint16(pixel)
 }
 
-func CalculateNormalizedValue(x, y, dx, dy, kw, kh int, oldImg image.Image, kernel [][]float32, getColor func(x, y int, img image.Image) uint8) uint8 {
+func CalculateNormalizedValue(x, y, dx, dy, kw, kh int, oldImg image.Image, kernel [][]float32, getColor func(x, y int, img image.Image) uint16) uint16 {
 	window, _ := spotKernelWindow(x, y, dx, dy, kw, kh, oldImg, getColor, ignoreOverlappedEdges)
 	mulWindow := multiply(window, kernel)
 	return normalizeWindow(mulWindow)

@@ -19,11 +19,11 @@ var lowSharpeningKernel = [][]float32{
 	{0.0, -1.0, 0.0}}
 var mediumSharpeningKernel = [][]float32{
 	{0.0, -1.0, 0.0},
-	{-1.0, 7.0, -1.0},
+	{-1.0, 5.5, -1.0},
 	{0.0, -1.0, 0.0}}
 var highSharpeningKernel = [][]float32{
 	{0.0, -1.0, 0.0},
-	{-1.0, 9.0, -1.0},
+	{-1.0, 6.0, -1.0},
 	{0.0, -1.0, 0.0}}
 
 func SharpImage(old image.Image, quality SHARPENING_QUALITY) image.Image {
@@ -35,6 +35,6 @@ func SharpImage(old image.Image, quality SHARPENING_QUALITY) image.Image {
 	case HIGH_SHARP:
 		return kernel_utils.ApplyKernel(old, highSharpeningKernel)
 	default:
-		return kernel_utils.ApplyKernel(old, lowSharpeningKernel)
+		return old
 	}
 }

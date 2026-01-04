@@ -62,12 +62,8 @@ func WriteImage(imageData image.Image, path, format string) error {
 }
 
 func ToRGBA(img image.Image) image.Image {
-	if rgba, ok := img.(*image.RGBA); ok {
-		return rgba
-	}
-
 	bounds := img.Bounds()
-	newImg := image.NewRGBA(bounds)
+	newImg := image.NewRGBA64(bounds)
 
 	draw.Draw(newImg, bounds, img, bounds.Min, draw.Src)
 
@@ -80,7 +76,7 @@ func GetScreenSize() (int, int) {
 }
 
 func Resize(src image.Image, newWidth, newHeight int) image.Image {
-	dst := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+	dst := image.NewRGBA64(image.Rect(0, 0, newWidth, newHeight))
 	scaler := draw.CatmullRom
 	scaler.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
 

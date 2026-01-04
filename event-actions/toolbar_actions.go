@@ -2,6 +2,7 @@ package event_actions
 
 import (
 	"bytes"
+	"fmt"
 	"image/png"
 	"os"
 	"photo-man/core/image_io"
@@ -33,6 +34,7 @@ func OpenImageAction(st *state.AppState) {
 		} else {
 			st.CanvasState.SetImage(img, img)
 		}
+		st.Reset()
 
 		if readerErr := reader.Close(); readerErr != nil {
 			dialog.ShowError(readerErr, fyne.CurrentApp().Driver().AllWindows()[0])
@@ -73,8 +75,9 @@ func ExportImageAction(st *state.AppState) {
 		if err := os.Remove(fileSavePath); err != nil {
 			return
 		}
-		st.ApplyAllModification()
-		if err := image_io.WriteImage(st.CanvasState.GetOriginalImage(), fileSavePath, st.CanvasState.GetFormat()); err != nil {
+		fmt.Println("Applying Modifications...")
+		img := st.ApplyAllModificationOnOriginalImage()
+		if err := image_io.WriteImage(img, fileSavePath, st.CanvasState.GetFormat()); err != nil {
 			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
 		}
 
@@ -88,20 +91,20 @@ func ExportImageAction(st *state.AppState) {
 }
 
 func ResetImage(st *state.AppState) {
+	st.Reset()
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	st.CanvasState.UpdateSceneImage(st.CanvasState.GetScaledImage())
-	st.Reset()
 }
 
 func CloseImage(st *state.AppState) {
+	st.Reset()
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	st.CanvasState.SetImageInCanvs(false)
 	st.CanvasState.SetImage(nil, nil)
-	st.Reset()
 }
 
 func RotateClockwiseAction(st *state.AppState) {
@@ -109,30 +112,34 @@ func RotateClockwiseAction(st *state.AppState) {
 		return
 	}
 	rotImg := image_transform.RotateClockwise(st.CanvasState.GetCurrentImage())
-	st.RegisterTransformation(image_transform.RotateClockwise)
+	st.CanvasState.SetScaledImage(image_transform.RotateClockwise(st.CanvasState.GetScaledImage()))
 	st.CanvasState.UpdateSceneImage(rotImg)
 }
+
 func RotateAntiClockwiseAction(st *state.AppState) {
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	rotImg := image_transform.RotateAntiClockwise(st.CanvasState.GetCurrentImage())
-	st.RegisterTransformation(image_transform.RotateAntiClockwise)
+	st.CanvasState.SetScaledImage(image_transform.RotateAntiClockwise(st.CanvasState.GetScaledImage()))
 	st.CanvasState.UpdateSceneImage(rotImg)
+
 }
+
 func FlipHorizontallyAction(st *state.AppState) {
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	flpImg := image_transform.FlipHorizontally(st.CanvasState.GetCurrentImage())
-	st.RegisterTransformation(image_transform.FlipHorizontally)
+	st.CanvasState.SetScaledImage(image_transform.FlipHorizontally(st.CanvasState.GetScaledImage()))
 	st.CanvasState.UpdateSceneImage(flpImg)
 }
+
 func FlipVerticallyAction(st *state.AppState) {
 	if !st.CanvasState.IsImageInCanvas() {
 		return
 	}
 	flpImg := image_transform.FlipVertically(st.CanvasState.GetCurrentImage())
-	st.RegisterTransformation(image_transform.FlipVertically)
+	st.CanvasState.SetScaledImage(image_transform.FlipVertically(st.CanvasState.GetScaledImage()))
 	st.CanvasState.UpdateSceneImage(flpImg)
 }
