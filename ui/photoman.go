@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image/color"
+	event_actions "photo-man/event-actions"
 	"photo-man/state"
 
 	"fyne.io/fyne/v2"
@@ -12,21 +13,24 @@ import (
 
 func StartApp() {
 	myApp := app.New()
-	masterWindow := myApp.NewWindow("Photo-Man")
+	masterWindow := myApp.NewWindow("PhotoMan")
 	masterWindow.SetMaster()
 	masterWindow.Resize(fyne.NewSize(1400, 800))
 	masterWindow.SetPadded(false)
 
-	appState := state.NewAppState()
+	appState := state.NewAppState(masterWindow)
 
 	middle := ViewPortContainer(appState)
-	right := Sidebar(appState)
-	top := Toolbar(appState)
+	right := RightSidebar(appState)
+	left := LeftSidebar(appState)
+	top := TopToolbar(appState)
+	bottom := BottomToolbar(appState)
 
-	splitter := container.NewHSplit(middle, right)
-	splitter.SetOffset(0.8)
+	mainCanvas := container.NewBorder(top, bottom, nil, nil, middle)
+	mainContainer := container.NewBorder(nil, nil, left, right, mainCanvas)
 
-	mainContainer := container.NewBorder(top, nil, nil, nil, splitter)
+	appState.SetAppContainers([]*fyne.Container{left, right, top, bottom})
+	event_actions.SetupShortcutsActions(appState)
 
 	bgColor := color.RGBA{R: 44, G: 44, B: 44, A: 255}
 	background := canvas.NewRectangle(bgColor)

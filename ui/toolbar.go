@@ -13,7 +13,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func Toolbar(st *state.AppState) *fyne.Container {
+func TopToolbar(st *state.AppState) *fyne.Container {
 
 	// props toolbar items
 	openItem := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
@@ -23,13 +23,12 @@ func Toolbar(st *state.AppState) *fyne.Container {
 	copyItem := widget.NewToolbarAction(theme.ContentCopyIcon(), func() {
 		eventActions.CopyImageAction(st)
 	})
-	closeItem := widget.NewToolbarAction(theme.WindowCloseIcon(), func() {
-		eventActions.CloseImage(st)
+
+	pasteItem := widget.NewToolbarAction(theme.ContentPasteIcon(), func() {
+		eventActions.PasteImageAction(st)
 	})
-	resetItem := widget.NewToolbarAction(theme.ContentUndoIcon(), func() {
-		eventActions.ResetImage(st)
-	})
-	toolBarOne := widget.NewToolbar(openItem, copyItem, closeItem, resetItem)
+
+	toolBarOne := widget.NewToolbar(openItem, copyItem, pasteItem)
 
 	// functionality toolbar items
 	rotateLeftItem := widget.NewToolbarAction(theme.MediaReplayIcon(), func() {
@@ -61,13 +60,18 @@ func Toolbar(st *state.AppState) *fyne.Container {
 	exportItem := widget.NewToolbarAction(theme.DownloadIcon(), func() {
 		eventActions.ExportImageAction(st)
 	})
-	toolBarThree := widget.NewToolbar(exportItem)
+	closeItem := widget.NewToolbarAction(theme.WindowCloseIcon(), func() {
+		eventActions.CloseImage(st)
+	})
+	resetItem := widget.NewToolbarAction(theme.ContentUndoIcon(), func() {
+		eventActions.ResetImage(st)
+	})
+
+	toolBarThree := widget.NewToolbar(exportItem, closeItem, resetItem)
 
 	// separators
-	separatorOne := canvas.NewRectangle(color.RGBA{R: 74, G: 85, B: 101, A: 255})
-	separatorOne.SetMinSize(fyne.NewSize(1, 1))
-	separatorTwo := canvas.NewRectangle(color.RGBA{R: 74, G: 85, B: 101, A: 255})
-	separatorTwo.SetMinSize(fyne.NewSize(1, 1))
+	separatorOne := widget.NewToolbarSeparator().ToolbarObject()
+	separatorTwo := widget.NewToolbarSeparator().ToolbarObject()
 
 	// box container
 	hBoxContainer := container.NewHBox(

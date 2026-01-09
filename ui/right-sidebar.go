@@ -13,7 +13,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func Sidebar(st *state.AppState) *fyne.Container {
+func RightSidebar(st *state.AppState) *fyne.Container {
 
 	// adjustment accordion item
 	brightnessContainer, brightnessSlider := initBrightnessArea(st)
@@ -67,6 +67,7 @@ func Sidebar(st *state.AppState) *fyne.Container {
 	contentVBox := container.NewVBox(sideTitle, separator, accordion)
 	bgColor := color.RGBA{R: 62, G: 62, B: 62, A: 255}
 	background := canvas.NewRectangle(bgColor)
+	background.SetMinSize(fyne.NewSize(250, background.Size().Height))
 
 	return container.NewStack(background, container.NewPadded(contentVBox))
 }
@@ -86,7 +87,6 @@ func initBrightnessArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 
 	return brightnessContainer, brightnessSlider
 }
-
 func initContrastArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	contrastText := canvas.NewText("  Contrast", color.White)
 	contrastValue := canvas.NewText("50  ", color.White)
@@ -101,7 +101,6 @@ func initContrastArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	}
 	return contrastContainer, contrastSlider
 }
-
 func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 	saturationText := canvas.NewText("  Saturation", color.White)
 	saturationValue := canvas.NewText("50  ", color.White)
@@ -119,90 +118,255 @@ func initSaturationArea(st *state.AppState) (*fyne.Container, *widget.Slider) {
 }
 
 func initBlurArea(st *state.AppState) *fyne.Container {
+	var lowButton *widget.Button
+	var medButton *widget.Button
+	var highButton *widget.Button
+
 	blurText := canvas.NewText("  Blur", color.White)
-	lowButton := widget.NewButton("LOW", func() {
+	lowButton = widget.NewButton(" 1 ", func() {
+		medButton.Importance = widget.MediumImportance
+		highButton.Importance = widget.MediumImportance
+		if lowButton.Importance == widget.MediumImportance {
+			lowButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetBlurQuality(image_filters.LOW_BLUR)
 		go event_actions.PerformEdit(st)
+
+		lowButton.Refresh()
+		medButton.Refresh()
+		highButton.Refresh()
 	})
-	medButton := widget.NewButton("MED", func() {
+	medButton = widget.NewButton(" 2 ", func() {
+		lowButton.Importance = widget.MediumImportance
+		highButton.Importance = widget.MediumImportance
+		if medButton.Importance == widget.MediumImportance {
+			medButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetBlurQuality(image_filters.MEDIUM_BLUR)
 		go event_actions.PerformEdit(st)
+
+		lowButton.Refresh()
+		medButton.Refresh()
+		highButton.Refresh()
 	})
-	highButton := widget.NewButton("HIGH", func() {
+	highButton = widget.NewButton(" 3 ", func() {
+		lowButton.Importance = widget.MediumImportance
+		medButton.Importance = widget.MediumImportance
+		if highButton.Importance == widget.MediumImportance {
+			highButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetBlurQuality(image_filters.HIGH_BLUR)
 		go event_actions.PerformEdit(st)
+
+		lowButton.Refresh()
+		medButton.Refresh()
+		highButton.Refresh()
 	})
 
 	container := container.NewBorder(nil, nil, blurText, container.NewHBox(lowButton, medButton, highButton))
 	return container
 }
-
 func initEmbossArea(st *state.AppState) *fyne.Container {
+	var lightButton *widget.Button
+	var darkButton *widget.Button
+	var heavyButton *widget.Button
+
 	embossText := canvas.NewText("  Emboss", color.White)
-	lightButton := widget.NewButton("LIGHT", func() {
+	lightButton = widget.NewButton(" 1 ", func() {
+		darkButton.Importance = widget.MediumImportance
+		heavyButton.Importance = widget.MediumImportance
+		if lightButton.Importance == widget.MediumImportance {
+			lightButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetEmbossQuality(image_filters.LIGHT_EMBOSS)
 		go event_actions.PerformEdit(st)
+
+		lightButton.Refresh()
+		darkButton.Refresh()
+		heavyButton.Refresh()
 	})
-	darkButton := widget.NewButton("DARK", func() {
+	darkButton = widget.NewButton(" 2 ", func() {
+		lightButton.Importance = widget.MediumImportance
+		heavyButton.Importance = widget.MediumImportance
+		if darkButton.Importance == widget.MediumImportance {
+			darkButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetEmbossQuality(image_filters.DARK_EMBOSS)
 		go event_actions.PerformEdit(st)
+
+		lightButton.Refresh()
+		darkButton.Refresh()
+		heavyButton.Refresh()
 	})
-	heavyButton := widget.NewButton("HEAVY", func() {
+	heavyButton = widget.NewButton(" 3 ", func() {
+		lightButton.Importance = widget.MediumImportance
+		darkButton.Importance = widget.MediumImportance
+		if heavyButton.Importance == widget.MediumImportance {
+			heavyButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetEmbossQuality(image_filters.HEAVY_EMBOSS)
 		go event_actions.PerformEdit(st)
+
+		lightButton.Refresh()
+		darkButton.Refresh()
+		heavyButton.Refresh()
 	})
-	container := container.NewBorder(nil, nil, embossText, container.NewHBox(lightButton, heavyButton, darkButton))
+	container := container.NewBorder(nil, nil, embossText, container.NewHBox(lightButton, darkButton, heavyButton))
 	return container
 }
-
 func initOutlineArea(st *state.AppState) *fyne.Container {
+	var standardButton *widget.Button
 	outlineText := canvas.NewText("  Outline", color.White)
-	standardButton := widget.NewButton("STANDARD", func() {
+
+	standardButton = widget.NewButton(" 1 ", func() {
+		if standardButton.Importance == widget.MediumImportance {
+			standardButton.Importance = widget.HighImportance
+		}
 		st.BasicFilterState.SetOutlineQuality(image_filters.STANDARD_OUTLINE)
 		go event_actions.PerformEdit(st)
+
+		standardButton.Refresh()
 	})
 
 	container := container.NewBorder(nil, nil, outlineText, container.NewHBox(standardButton))
 	return container
 }
-
 func initSharpeningArea(st *state.AppState) *fyne.Container {
+	var lowButton *widget.Button
+	var medButton *widget.Button
+	var highButton *widget.Button
+
 	blurText := canvas.NewText("  Sharpening", color.White)
-	lowButton := widget.NewButton("LOW", func() {
+	lowButton = widget.NewButton(" 1 ", func() {
+		medButton.Importance = widget.MediumImportance
+		highButton.Importance = widget.MediumImportance
+		if lowButton.Importance == widget.MediumImportance {
+			lowButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSharpeningQuality(image_filters.LOW_SHARP)
 		go event_actions.PerformEdit(st)
+
+		medButton.Refresh()
+		highButton.Refresh()
+		lowButton.Refresh()
+
 	})
-	medButton := widget.NewButton("MED", func() {
+	medButton = widget.NewButton(" 2 ", func() {
+		lowButton.Importance = widget.MediumImportance
+		highButton.Importance = widget.MediumImportance
+		if medButton.Importance == widget.MediumImportance {
+			medButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSharpeningQuality(image_filters.MEDIUM_SHARP)
 		go event_actions.PerformEdit(st)
+
+		medButton.Refresh()
+		highButton.Refresh()
+		lowButton.Refresh()
 	})
-	highButton := widget.NewButton("HIGH", func() {
+	highButton = widget.NewButton(" 3 ", func() {
+		medButton.Importance = widget.MediumImportance
+		lowButton.Importance = widget.MediumImportance
+		if highButton.Importance == widget.MediumImportance {
+			highButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSharpeningQuality(image_filters.HIGH_SHARP)
 		go event_actions.PerformEdit(st)
+
+		medButton.Refresh()
+		highButton.Refresh()
+		lowButton.Refresh()
 	})
 
 	container := container.NewBorder(nil, nil, blurText, container.NewHBox(lowButton, medButton, highButton))
 	return container
 }
-
 func initSobelArea(st *state.AppState) *fyne.Container {
 	blurText := canvas.NewText("  Sobel", color.White)
-	leftButton := widget.NewButton("LEFT", func() {
+	var leftButton *widget.Button
+	var topButton *widget.Button
+	var rightButton *widget.Button
+	var bottomButton *widget.Button
+
+	leftButton = widget.NewButton(" L ", func() {
+		// control button importance to simulate toggle behavior
+		rightButton.Importance = widget.MediumImportance
+		topButton.Importance = widget.MediumImportance
+		bottomButton.Importance = widget.MediumImportance
+		if leftButton.Importance == widget.MediumImportance {
+			leftButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSobelQuality(image_filters.LEFT_SOBEL)
 		go event_actions.PerformEdit(st)
+
+		// refresh all buttons to update their importance state
+		leftButton.Refresh()
+		rightButton.Refresh()
+		topButton.Refresh()
+		bottomButton.Refresh()
+
 	})
-	topButton := widget.NewButton("TOP", func() {
+
+	topButton = widget.NewButton(" T ", func() {
+		rightButton.Importance = widget.MediumImportance
+		leftButton.Importance = widget.MediumImportance
+		bottomButton.Importance = widget.MediumImportance
+
+		if topButton.Importance == widget.MediumImportance {
+			topButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSobelQuality(image_filters.TOP_SOBEL)
 		go event_actions.PerformEdit(st)
+
+		leftButton.Refresh()
+		rightButton.Refresh()
+		topButton.Refresh()
+		bottomButton.Refresh()
 	})
-	rightButton := widget.NewButton("RIGHT", func() {
+	rightButton = widget.NewButton(" R ", func() {
+		leftButton.Importance = widget.MediumImportance
+		topButton.Importance = widget.MediumImportance
+		bottomButton.Importance = widget.MediumImportance
+		if rightButton.Importance == widget.MediumImportance {
+			rightButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSobelQuality(image_filters.RIGHT_SOBEL)
 		go event_actions.PerformEdit(st)
+
+		leftButton.Refresh()
+		rightButton.Refresh()
+		topButton.Refresh()
+		bottomButton.Refresh()
 	})
-	bottomButton := widget.NewButton("BOTTOM", func() {
+	bottomButton = widget.NewButton(" D ", func() {
+		rightButton.Importance = widget.MediumImportance
+		leftButton.Importance = widget.MediumImportance
+		bottomButton.Importance = widget.MediumImportance
+		if bottomButton.Importance == widget.MediumImportance {
+			bottomButton.Importance = widget.HighImportance
+		}
+
 		st.BasicFilterState.SetSobelQuality(image_filters.BOTTOM_SOBEL)
 		go event_actions.PerformEdit(st)
+
+		leftButton.Refresh()
+		rightButton.Refresh()
+		topButton.Refresh()
+		bottomButton.Refresh()
 	})
+
 	container := container.NewBorder(nil, nil, blurText, container.NewHBox(leftButton, topButton, rightButton, bottomButton))
 	return container
 }

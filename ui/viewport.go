@@ -26,11 +26,11 @@ func NewViewport(st *state.AppState) *Viewport {
 	imgCanvas.FillMode = canvas.ImageFillOriginal
 
 	noPhotoIcon := canvas.NewImageFromResource(assets.NoPhoto)
-	noPhotoIcon.FillMode = canvas.ImageFillCover
+	noPhotoIcon.FillMode = canvas.ImageFillContain
 	noPhotoIcon.SetMinSize(fyne.NewSize(200, 200))
 	placeholderContent := container.NewVBox(
 		noPhotoIcon,
-		widget.NewLabelWithStyle("Click 'Open' to start editing", fyne.TextAlignCenter, fyne.TextStyle{}),
+		widget.NewLabelWithStyle("Drop any image or click 'Open' to start editing", fyne.TextAlignCenter, fyne.TextStyle{}),
 	)
 
 	placeholderWrapper := container.NewCenter(placeholderContent)

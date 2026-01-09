@@ -5,6 +5,7 @@ package assets
 
 import (
 	_ "embed"
+
 	"fyne.io/fyne/v2"
 )
 
@@ -41,4 +42,53 @@ var NoPhotoData []byte
 var NoPhoto = &fyne.StaticResource{
 	StaticName:    "no-photo.png",
 	StaticContent: NoPhotoData,
+}
+
+//go:embed palette.png
+var PaletteData []byte
+var Palette = &fyne.StaticResource{
+	StaticName:    "palette.png",
+	StaticContent: PaletteData,
+}
+
+//go:embed brush.png
+var BrushData []byte
+var Brush = &fyne.StaticResource{
+	StaticName:    "brush.png",
+	StaticContent: BrushData,
+}
+
+//go:embed eraser.png
+var EraserData []byte
+var Eraser = &fyne.StaticResource{
+	StaticName:    "eraser.png",
+	StaticContent: EraserData,
+}
+
+//go:embed text.png
+var TextData []byte
+var Text = &fyne.StaticResource{
+	StaticName:    "text.png",
+	StaticContent: TextData,
+}
+
+//go:embed undo.png
+var UndoData []byte
+var Undo = &fyne.StaticResource{
+	StaticName:    "undo.png",
+	StaticContent: UndoData,
+}
+
+//go:embed redo.png
+var RedoData []byte
+var Redo = &fyne.StaticResource{
+	StaticName:    "redo.png",
+	StaticContent: RedoData,
+}
+
+//go:embed crop.png
+var CropData []byte
+var Crop = &fyne.StaticResource{
+	StaticName:    "crop.png",
+	StaticContent: CropData,
 }
