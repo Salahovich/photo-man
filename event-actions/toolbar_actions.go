@@ -2,7 +2,7 @@ package event_actions
 
 import (
 	"bytes"
-	"fmt"
+	"image"
 	"image/png"
 	"os"
 	"photo-man/core/image_io"
@@ -21,20 +21,7 @@ func OpenImageAction(st *state.AppState) {
 		}
 
 		imagePath := reader.URI().Path()
-		img, format, imgErr := image_io.ReadImage(imagePath)
-		if imgErr != nil {
-			dialog.ShowError(imgErr, fyne.CurrentApp().Driver().AllWindows()[0])
-			return
-		}
-
-		st.CanvasState.SetImageInCanvs(true)
-		st.CanvasState.SetFormat(format)
-		if ok, newImg := image_io.Rescale(img); ok {
-			st.CanvasState.SetImage(img, newImg)
-		} else {
-			st.CanvasState.SetImage(img, img)
-		}
-		st.Reset()
+		OpenImageWithPath(imagePath, st)
 
 		if readerErr := reader.Close(); readerErr != nil {
 			dialog.ShowError(readerErr, fyne.CurrentApp().Driver().AllWindows()[0])
@@ -44,6 +31,27 @@ func OpenImageAction(st *state.AppState) {
 	}, fyne.CurrentApp().Driver().AllWindows()[0])
 
 	fileDialog.Show()
+}
+
+func OpenImageWithPath(imagePath string, st *state.AppState) {
+	img, format, imgErr := image_io.ReadImage(imagePath)
+	if imgErr != nil {
+		dialog.ShowError(imgErr, fyne.CurrentApp().Driver().AllWindows()[0])
+		return
+	}
+	ScaleAndViewImage(img, format, st)
+
+}
+
+func ScaleAndViewImage(img image.Image, format string, st *state.AppState) {
+	st.CanvasState.SetImageInCanvs(true)
+	st.CanvasState.SetFormat(format)
+	if ok, newImg := image_io.Rescale(img); ok {
+		st.CanvasState.SetImage(img, newImg)
+	} else {
+		st.CanvasState.SetImage(img, img)
+	}
+	st.Reset()
 }
 
 func CopyImageAction(st *state.AppState) {
@@ -61,6 +69,20 @@ func CopyImageAction(st *state.AppState) {
 	clipboard.Write(clipboard.FmtImage, imgBuffer.Bytes())
 }
 
+func PasteImageAction(st *state.AppState) {
+	err := clipboard.Init()
+	if err != nil {
+		return
+	}
+
+	imgBuffer := clipboard.Read(clipboard.FmtImage)
+	img, err := png.Decode(bytes.NewReader(imgBuffer))
+
+	if err == nil {
+		ScaleAndViewImage(img, "png", st)
+	}
+}
+
 func ExportImageAction(st *state.AppState) {
 	if !st.CanvasState.IsImageInCanvas() {
 		return
@@ -75,11 +97,14 @@ func ExportImageAction(st *state.AppState) {
 		if err := os.Remove(fileSavePath); err != nil {
 			return
 		}
-		fmt.Println("Applying Modifications...")
-		img := st.ApplyAllModificationOnOriginalImage()
-		if err := image_io.WriteImage(img, fileSavePath, st.CanvasState.GetFormat()); err != nil {
-			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
-		}
+
+		// save the image with all modifications applied
+		go func() {
+			img := st.ApplyAllModificationOnOriginalImage()
+			if err := image_io.WriteImage(img, fileSavePath, st.CanvasState.GetFormat()); err != nil {
+				dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
+			}
+		}()
 
 		if err := writer.Close(); err != nil {
 			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])

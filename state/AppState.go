@@ -7,6 +7,7 @@ import (
 	"photo-man/core/image_transform"
 	"sync"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 )
 
@@ -16,9 +17,11 @@ type AppState struct {
 	AdjustmentFactors *AdjustmentFactors
 	BasicFilterState  *BasicFilterState
 	Transformations   *TransformationState
+	AppContainers     []*fyne.Container
+	AppWindow         fyne.Window
 }
 
-func NewAppState() *AppState {
+func NewAppState(window fyne.Window) *AppState {
 	newState := AppState{
 		CanvasState: &CanvasState{
 			communication: make(chan image.Image),
@@ -48,10 +51,15 @@ func NewAppState() *AppState {
 			FlipVertical:   false,
 			FlipHorizontal: false,
 		},
+		AppWindow: window,
 	}
 	newState.AdjustmentState.InitAdjustmentsState()
 
 	return &newState
+}
+
+func (s *AppState) SetAppContainers(containers []*fyne.Container) {
+	s.AppContainers = containers
 }
 
 func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {

@@ -73,6 +73,6 @@ func GaussianBlur(old image.Image, quality BLUR_QUALITY) image.Image {
 	case HIGH_BLUR:
 		return kernel_utils.ApplyKernel(old, high_gaussian_blur_kernel)
 	default:
-		return kernel_utils.ApplyKernel(old, low_gaussian_blur_kernel)
+		return old
 	}
 }
