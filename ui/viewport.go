@@ -30,7 +30,7 @@ func NewViewport(st *state.AppState) *Viewport {
 	noPhotoIcon.SetMinSize(fyne.NewSize(200, 200))
 	placeholderContent := container.NewVBox(
 		noPhotoIcon,
-		widget.NewLabelWithStyle("Drop any image or click 'Open' to start editing", fyne.TextAlignCenter, fyne.TextStyle{}),
+		widget.NewLabelWithStyle("Drop any image \n or press 'Ctrl+G' to paste image \n or click 'Open' to start editing", fyne.TextAlignCenter, fyne.TextStyle{}),
 	)
 
 	placeholderWrapper := container.NewCenter(placeholderContent)
