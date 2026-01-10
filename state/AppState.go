@@ -2,6 +2,8 @@ package state
 
 import (
 	"image"
+	"image/color"
+	colorBlending "photo-man/core/color_blending"
 	"photo-man/core/image_adjustments"
 	"photo-man/core/image_filters"
 	"photo-man/core/image_transform"
@@ -16,8 +18,9 @@ type AppState struct {
 	AdjustmentState   *AdjustmentState
 	AdjustmentFactors *AdjustmentFactors
 	BasicFilterState  *BasicFilterState
+	ColorBlendState   *ColorBlendState
 	Transformations   *TransformationState
-	AppContainers     []*fyne.Container
+	AppEdgeContainers []*fyne.Container
 	AppWindow         fyne.Window
 }
 
@@ -46,6 +49,11 @@ func NewAppState(window fyne.Window) *AppState {
 			ContrastFactor:       1.0,
 			SaturationFactor:     0.0,
 		},
+		ColorBlendState: &ColorBlendState{
+			Color:   color.Black,
+			Mode:    nil,
+			Opacity: binding.NewFloat(),
+		},
 		Transformations: &TransformationState{
 			Rotate:         0,
 			FlipVertical:   false,
@@ -58,8 +66,8 @@ func NewAppState(window fyne.Window) *AppState {
 	return &newState
 }
 
-func (s *AppState) SetAppContainers(containers []*fyne.Container) {
-	s.AppContainers = containers
+func (s *AppState) SetAppEdgeContainers(containers []*fyne.Container) {
+	s.AppEdgeContainers = containers
 }
 
 func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
@@ -94,6 +102,9 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	img = image_adjustments.UpdateContrast(img, s.AdjustmentFactors.ContrastFactor)
 	img = image_adjustments.UpdateSaturation(img, s.AdjustmentFactors.SaturationFactor)
 
+	// color blending
+	img = colorBlending.PerformBlending(img, s.ColorBlendState.Color, s.ColorBlendState.Mode)
+
 	return img
 }
 
@@ -102,4 +113,5 @@ func (s *AppState) Reset() {
 	s.AdjustmentFactors.InitAdjustmentsFactors()
 	s.BasicFilterState.InitBasicFilterState()
 	s.Transformations.InitTransformations()
+	s.ColorBlendState.initColorBlendingState()
 }
