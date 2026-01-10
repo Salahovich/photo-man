@@ -17,15 +17,15 @@ func TopToolbar(st *state.AppState) *fyne.Container {
 
 	// props toolbar items
 	openItem := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
-		eventActions.OpenImageAction(st)
+		go eventActions.OpenImageAction(st)
 	})
 
 	copyItem := widget.NewToolbarAction(theme.ContentCopyIcon(), func() {
-		eventActions.CopyImageAction(st)
+		go eventActions.CopyImageAction(st)
 	})
 
 	pasteItem := widget.NewToolbarAction(theme.ContentPasteIcon(), func() {
-		eventActions.PasteImageAction(st)
+		go eventActions.PasteImageAction(st)
 	})
 
 	toolBarOne := widget.NewToolbar(openItem, copyItem, pasteItem)
@@ -58,14 +58,19 @@ func TopToolbar(st *state.AppState) *fyne.Container {
 
 	// export toolbar items
 	exportItem := widget.NewToolbarAction(theme.DownloadIcon(), func() {
-		eventActions.ExportImageAction(st)
+		go eventActions.ExportImageAction(st)
 	})
 	closeItem := widget.NewToolbarAction(theme.WindowCloseIcon(), func() {
-		eventActions.CloseImage(st)
+		go eventActions.CloseImage(st)
 	})
 	resetItem := widget.NewToolbarAction(theme.ContentUndoIcon(), func() {
-		eventActions.ResetImage(st)
+		go eventActions.ResetImage(st)
 	})
+	collapseItem := widget.NewToolbarAction(theme.MenuIcon(), func() {
+		go fyne.Do(func() {
+			eventActions.ToggleRightSideBarVisibility(st)
+		})
+	}).ToolbarObject()
 
 	toolBarThree := widget.NewToolbar(exportItem, closeItem, resetItem)
 
@@ -74,17 +79,21 @@ func TopToolbar(st *state.AppState) *fyne.Container {
 	separatorTwo := widget.NewToolbarSeparator().ToolbarObject()
 
 	// box container
-	hBoxContainer := container.NewHBox(
+	hBoxMainToolsContainer := container.NewHBox(
 		toolBarOne,
 		separatorOne,
 		toolBarTwo,
 		separatorTwo,
 		toolBarThree)
 
+	// collapseItemhBoxContainer := container.NewHBox(collapseItem)
+
 	bgColor := color.RGBA{R: 62, G: 62, B: 62, A: 255}
-	background := canvas.NewRectangle(bgColor)
+	background1 := canvas.NewRectangle(bgColor)
+	background2 := canvas.NewRectangle(bgColor)
 
-	centerContainer := container.NewCenter(hBoxContainer)
+	stack1 := container.NewStack(background1, container.NewPadded(container.NewCenter(hBoxMainToolsContainer)))
+	stack2 := container.NewStack(background2, collapseItem)
 
-	return container.NewStack(background, container.NewPadded(centerContainer))
+	return container.NewBorder(nil, nil, nil, stack2, stack1)
 }

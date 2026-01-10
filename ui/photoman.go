@@ -29,7 +29,7 @@ func StartApp() {
 	mainCanvas := container.NewBorder(top, bottom, nil, nil, middle)
 	mainContainer := container.NewBorder(nil, nil, left, right, mainCanvas)
 
-	appState.SetAppContainers([]*fyne.Container{left, right, top, bottom})
+	appState.SetAppEdgeContainers([]*fyne.Container{top, left, bottom, right})
 	event_actions.SetupShortcutsActions(appState)
 
 	bgColor := color.RGBA{R: 44, G: 44, B: 44, A: 255}

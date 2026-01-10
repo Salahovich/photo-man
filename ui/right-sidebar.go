@@ -3,9 +3,11 @@ package ui
 import (
 	"fmt"
 	"image/color"
+	colorBlending "photo-man/core/color_blending"
 	"photo-man/core/image_filters"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
+	customUI "photo-man/ui/custom-ui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -50,8 +52,12 @@ func RightSidebar(st *state.AppState) *fyne.Container {
 	basicFilters := widget.NewAccordionItem("Basic Filters", basicFiltersContainer)
 
 	// predefined-filters accordion item
-	predefinedFiltersContainer := initFiltersArea()
-	predefinedFilters := widget.NewAccordionItem("Predefined Filters", predefinedFiltersContainer)
+	colorArea, blendArea, transperancyArea := initColorBlendingArea(st)
+	colorBlendContainer := container.NewVBox(
+		colorArea,
+		blendArea,
+		transperancyArea)
+	colorBlend := widget.NewAccordionItem("Color Blending", colorBlendContainer)
 
 	// metadata accordion item
 	metadataContainer := initMetadataArea()
@@ -61,7 +67,7 @@ func RightSidebar(st *state.AppState) *fyne.Container {
 	separator.SetMinSize(fyne.NewSize(1, 1))
 
 	sideTitle := widget.NewLabelWithStyle("Tools", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	accordion := widget.NewAccordion(adjustments, basicFilters, predefinedFilters, metadata)
+	accordion := widget.NewAccordion(adjustments, basicFilters, colorBlend, metadata)
 	accordion.MultiOpen = false
 
 	contentVBox := container.NewVBox(sideTitle, separator, accordion)
@@ -371,17 +377,52 @@ func initSobelArea(st *state.AppState) *fyne.Container {
 	return container
 }
 
-func initFiltersArea() *fyne.Container {
-	rec1 := canvas.NewRectangle(color.White)
-	rec1.SetMinSize(fyne.NewSize(50, 50))
-	rec2 := canvas.NewRectangle(color.White)
-	rec2.SetMinSize(fyne.NewSize(50, 50))
-	rec3 := canvas.NewRectangle(color.White)
-	rec3.SetMinSize(fyne.NewSize(50, 50))
-	rec4 := canvas.NewRectangle(color.White)
-	rec4.SetMinSize(fyne.NewSize(50, 50))
+func initColorBlendingArea(st *state.AppState) (*fyne.Container, *fyne.Container, *fyne.Container) {
+	// color area
+	colorText := canvas.NewText("  Color", color.White)
+	colorPicker := customUI.NewCustomColorPicker(fyne.NewSize(128, 30), func(choosen color.Color) {
+		st.ColorBlendState.SetColor(choosen)
+	})
 
-	return container.NewGridWithColumns(2, rec1, rec2, rec3, rec4)
+	colorContainer := container.NewBorder(nil, nil, colorText, colorPicker)
+
+	// blending mode area
+	blendText := canvas.NewText("  Mode", color.White)
+
+	blendOptions := widget.NewSelect([]string{"Standard", "Multiply", "Screen", "Overlay"}, func(choosen string) {
+		switch choosen {
+		case "Standard":
+			st.ColorBlendState.SetMode(colorBlending.StandardBlend)
+		case "Multiply":
+			st.ColorBlendState.SetMode(colorBlending.MultiplyBlend)
+		case "Screen":
+			st.ColorBlendState.SetMode(colorBlending.ScreenBlend)
+		case "Overlay":
+			st.ColorBlendState.SetMode(colorBlending.OverlayBlend)
+		default:
+			st.ColorBlendState.SetMode(nil)
+		}
+	})
+
+	blendContainer := container.NewBorder(nil, nil, blendText, blendOptions)
+
+	// transperancy area
+	opacityText := canvas.NewText("  Opacity", color.White)
+	opacityValue := canvas.NewText("0  ", color.White)
+	opacityTextValueContainer := container.NewBorder(nil, nil, opacityText, opacityValue, nil)
+
+	opacitySlider := widget.NewSliderWithData(0, 100, st.ColorBlendState.Opacity)
+	opacitySlider.SetValue(0)
+	opacitySlider.OnChanged = func(value float64) {
+		opacityValue.Text = fmt.Sprintf("%d ", int(value))
+		st.ColorBlendState.SetOpacity(value)
+		opacityValue.Refresh()
+		go event_actions.PerformEdit(st)
+	}
+
+	transContainer := container.NewVBox(opacityTextValueContainer, opacitySlider)
+
+	return colorContainer, blendContainer, transContainer
 }
 
 func initMetadataArea() *fyne.Container {

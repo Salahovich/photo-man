@@ -54,7 +54,7 @@ func handleFullScreenMode(st *state.AppState) {
 func exitFullScreenMode(st *state.AppState) {
 	fyne.CurrentApp().Driver().AllWindows()[0].SetFullScreen(false)
 
-	for _, container := range st.AppContainers {
+	for _, container := range st.AppEdgeContainers {
 		container.Show()
 		container.Refresh()
 	}
@@ -63,7 +63,7 @@ func exitFullScreenMode(st *state.AppState) {
 func EnterFullScreenMode(st *state.AppState) {
 	fyne.CurrentApp().Driver().AllWindows()[0].SetFullScreen(true)
 
-	for _, container := range st.AppContainers {
+	for _, container := range st.AppEdgeContainers {
 		container.Hide()
 		container.Refresh()
 	}

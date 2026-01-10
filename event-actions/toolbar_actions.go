@@ -168,3 +168,16 @@ func FlipVerticallyAction(st *state.AppState) {
 	st.CanvasState.SetScaledImage(image_transform.FlipVertically(st.CanvasState.GetScaledImage()))
 	st.CanvasState.UpdateSceneImage(flpImg)
 }
+
+func ToggleRightSideBarVisibility(st *state.AppState) {
+	// fetch the right side bar
+	rightSideBar := st.AppEdgeContainers[3]
+	if rightSideBar.Hidden {
+		rightSideBar.Show()
+		rightSideBar.Refresh()
+	} else {
+		rightSideBar.Hide()
+		rightSideBar.Refresh()
+	}
+	st.AppWindow.Content().Refresh()
+}

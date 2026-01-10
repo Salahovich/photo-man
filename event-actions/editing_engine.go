@@ -12,6 +12,7 @@ func PerformEdit(st *state.AppState) {
 	// Run all edits sequentially
 	img := UpdateAdjustmentsAction(scaledImg, st.AdjustmentState, st.AdjustmentFactors)
 	img = UpdateBaseFiltersAction(img, st.BasicFilterState)
+	img = UpdateColorBlendingAction(img, st.ColorBlendState)
 
 	st.CanvasState.UpdateSceneImage(img)
 }
