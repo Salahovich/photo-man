@@ -12,36 +12,41 @@ import (
 
 func ViewPortContainer(st *state.AppState) *fyne.Container {
 	vp := NewViewport(st)
-	return vp.mainContainer
+	return container.NewStack(vp.canvasStack)
 }
 
 type Viewport struct {
-	mainContainer *fyne.Container
-	imageView     *canvas.Image
-	placeholder   *fyne.Container
+	canvasStack *fyne.Container
+	imageView   *canvas.Image
+	placeholder *fyne.Container
 }
 
 func NewViewport(st *state.AppState) *Viewport {
 	imgCanvas := canvas.NewImageFromResource(nil)
-	imgCanvas.FillMode = canvas.ImageFillOriginal
+	imgCanvas.FillMode = canvas.ImageFillContain
 
 	noPhotoIcon := canvas.NewImageFromResource(assets.NoPhoto)
 	noPhotoIcon.FillMode = canvas.ImageFillContain
 	noPhotoIcon.SetMinSize(fyne.NewSize(200, 200))
 	placeholderContent := container.NewVBox(
 		noPhotoIcon,
-		widget.NewLabelWithStyle("Drop any image \n or press 'Ctrl+G' to paste image \n or click 'Open' to start editing", fyne.TextAlignCenter, fyne.TextStyle{}),
-	)
+		widget.NewLabelWithStyle(
+			"Drop any image \n or press 'Ctrl+G' to paste image \n or click 'Open' to start editing",
+			fyne.TextAlignCenter,
+			fyne.TextStyle{}))
 
 	placeholderWrapper := container.NewCenter(placeholderContent)
-	mainContainer := container.NewCenter(placeholderWrapper, imgCanvas)
+	canvasContainerStack := container.NewCenter(placeholderWrapper, imgCanvas)
 
 	viewPortState := &Viewport{
-		mainContainer: mainContainer,
-		imageView:     imgCanvas,
-		placeholder:   placeholderWrapper,
+		canvasStack: canvasContainerStack,
+		imageView:   imgCanvas,
+		placeholder: placeholderWrapper,
 	}
 
+	st.CanvasState.SetCanvasStack(canvasContainerStack)
+
+	// start the View Port channel.
 	viewPortState.UpdateViewPortImage(st)
 	return viewPortState
 }
@@ -60,7 +65,9 @@ func (v *Viewport) UpdateViewPortImage(st *state.AppState) {
 					v.imageView.SetMinSize(fyne.Size{Width: w, Height: h})
 
 					v.imageView.Refresh()
-					v.placeholder.Hide()
+					if v.placeholder.Visible() {
+						v.placeholder.Hide()
+					}
 				})
 			}
 

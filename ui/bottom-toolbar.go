@@ -38,10 +38,38 @@ func BottomToolbar(st *state.AppState) *fyne.Container {
 		event_actions.EnterFullScreenMode(st)
 	}).ToolbarObject()
 
+	openItem := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
+		go event_actions.OpenImageAction(st)
+	}).ToolbarObject()
+
+	copyItem := widget.NewToolbarAction(theme.ContentCopyIcon(), func() {
+		go event_actions.CopyImageAction(st)
+	}).ToolbarObject()
+
+	pasteItem := widget.NewToolbarAction(theme.ContentPasteIcon(), func() {
+		go event_actions.PasteImageAction(st)
+	}).ToolbarObject()
+
+	exportItem := widget.NewToolbarAction(theme.DownloadIcon(), func() {
+		go event_actions.ExportImageAction(st)
+	}).ToolbarObject()
+
+	closeItem := widget.NewToolbarAction(theme.WindowCloseIcon(), func() {
+		go event_actions.CloseImage(st)
+	}).ToolbarObject()
+	resetItem := widget.NewToolbarAction(theme.ContentUndoIcon(), func() {
+		go event_actions.ResetImage(st)
+	}).ToolbarObject()
+
 	separatorOne := widget.NewToolbarSeparator().ToolbarObject()
 	separatorTwo := widget.NewToolbarSeparator().ToolbarObject()
+	separatorThree := widget.NewToolbarSeparator().ToolbarObject()
 
-	toolBar := container.NewHBox(undoAction, redoAction, separatorOne, zoomInAction, zoomOutAction, separatorTwo, fullScreenAction)
+	toolBar := container.NewHBox(
+		openItem, copyItem, pasteItem, exportItem, separatorOne,
+		undoAction, redoAction, closeItem, resetItem, separatorTwo,
+		zoomInAction, zoomOutAction, separatorThree,
+		fullScreenAction)
 
 	bgColor := color.RGBA{R: 62, G: 62, B: 62, A: 255}
 	background := canvas.NewRectangle(bgColor)

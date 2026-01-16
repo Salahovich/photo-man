@@ -2,7 +2,10 @@ package state
 
 import (
 	"image"
+	customUI "photo-man/ui/custom-ui"
 	"sync"
+
+	"fyne.io/fyne/v2"
 )
 
 type CanvasState struct {
@@ -10,6 +13,8 @@ type CanvasState struct {
 	currentImage  image.Image
 	scaledImage   image.Image
 	originalImage image.Image
+	canvasStack   *fyne.Container
+	cropState     *CropState
 	communication chan image.Image
 	canvasMutex   *sync.RWMutex
 	format        string
@@ -74,4 +79,27 @@ func (c *CanvasState) SetImageInCanvs(isIn bool) {
 
 func (c *CanvasState) SetScaledImage(img image.Image) {
 	c.scaledImage = img
+}
+
+func (c *CanvasState) SetCanvasStack(canvasStack *fyne.Container) {
+	c.canvasStack = canvasStack
+}
+
+func (c *CanvasState) GetCanvasStack() *fyne.Container {
+	return c.canvasStack
+}
+
+func (c *CanvasState) GetCropState() *CropState {
+	return c.cropState
+}
+
+func (c *CanvasState) AddCropLayer(layer *customUI.ResizableRectangle) {
+	c.cropState.cropImageCanvas = layer
+	c.cropState.EnableCropState()
+	c.canvasStack.Add(layer)
+}
+
+func (c *CanvasState) RemoveCropLayer() {
+	c.canvasStack.Remove(c.cropState.cropImageCanvas)
+	c.cropState.DisableCropState()
 }

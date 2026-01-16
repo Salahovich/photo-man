@@ -29,6 +29,9 @@ func NewAppState(window fyne.Window) *AppState {
 		CanvasState: &CanvasState{
 			communication: make(chan image.Image),
 			canvasMutex:   &sync.RWMutex{},
+			cropState: &CropState{
+				isCropState: false,
+			},
 		},
 		AdjustmentState: &AdjustmentState{
 			Brightness: binding.NewFloat(),
@@ -114,4 +117,5 @@ func (s *AppState) Reset() {
 	s.BasicFilterState.InitBasicFilterState()
 	s.Transformations.InitTransformations()
 	s.ColorBlendState.initColorBlendingState()
+	s.CanvasState.GetCropState().InitCropState()
 }

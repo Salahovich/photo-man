@@ -123,3 +123,24 @@ func OverlayBlend(pixel color.Color, blend color.Color) color.RGBA64 {
 
 	return color.RGBA64{R: uint16(r_), G: uint16(g_), B: uint16(b_), A: uint16(a_)}
 }
+
+func ExclusionBlend(pixel color.Color, blend color.Color) color.RGBA64 {
+	r, g, b, a := pixel.RGBA()
+	rBlend, gBlend, bBlend, aBlend := blend.RGBA()
+
+	// normalize to [0,1]
+	r_, g_, b_, a_ := float64(r)/65535.0, float64(g)/65535.0, float64(b)/65535.0, float64(a)
+	rBlend_, gBlend_, bBlend_, aBlend_ := float64(rBlend)/65535.0, float64(gBlend)/65535.0, float64(bBlend)/65535.0, float64(aBlend)/65535.0
+
+	// color screen blending per channel
+	rBlend_ = 0.5 - 2*((r_-0.5)*(rBlend_-0.5))
+	gBlend_ = 0.5 - 2*((g_-0.5)*(gBlend_-0.5))
+	bBlend_ = 0.5 - 2*((b_-0.5)*(bBlend_-0.5))
+
+	// transparency handling
+	r_ = math.Max(0, math.Min(65535, (r_*(1-aBlend_)+(rBlend_*aBlend_))*65535.0))
+	g_ = math.Max(0, math.Min(65535, (g_*(1-aBlend_)+(gBlend_*aBlend_))*65535.0))
+	b_ = math.Max(0, math.Min(65535, (b_*(1-aBlend_)+(bBlend_*aBlend_))*65535.0))
+
+	return color.RGBA64{R: uint16(r_), G: uint16(g_), B: uint16(b_), A: uint16(a_)}
+}

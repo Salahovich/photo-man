@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -19,14 +20,17 @@ func NewCustomColorPicker(size fyne.Size, onClick func(color.Color)) *CustomColo
 	var item *CustomColorPicker
 
 	item = &CustomColorPicker{
-		Rect:         canvas.NewRectangle(color.Black),
-		OnClick:      onClick,
+		Rect:    canvas.NewRectangle(color.Black),
+		OnClick: onClick,
 	}
 	item.Rect.SetMinSize(size)
 	item.Rect.CornerRadius = 4
 	item.ExtendBaseWidget(item)
 
 	return item
+}
+func (cp *CustomColorPicker) Cursor() desktop.Cursor {
+	return desktop.PointerCursor
 }
 
 func (cp *CustomColorPicker) Tapped(*fyne.PointEvent) {
