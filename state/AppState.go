@@ -115,6 +115,11 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 		img = image_transform.FlipVertically(img)
 	}
 
+	// crop image
+	if s.CanvasState.cropState.CanCrop() {
+		img = image_transform.Crop(img, s.CanvasState.cropState.GetStartPosition(), s.CanvasState.cropState.GetEndPosition())
+	}
+
 	// filter the image
 	img = image_filters.GaussianBlur(img, s.BasicFilterState.Blur)
 	img = image_filters.EmbossImage(img, s.BasicFilterState.Emboss)

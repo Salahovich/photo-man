@@ -21,7 +21,7 @@ func PerformBlending(img image.Image, blendColor color.Color, blendMode func(col
 	if blendMode == nil || a == 0 {
 		return img
 	}
-	
+
 	newImg := image.NewRGBA64(img.Bounds())
 	wg := sync.WaitGroup{}
 	wg.Add(img.Bounds().Dy())
