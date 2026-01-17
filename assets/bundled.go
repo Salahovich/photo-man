@@ -92,3 +92,17 @@ var Crop = &fyne.StaticResource{
 	StaticName:    "crop.png",
 	StaticContent: CropData,
 }
+
+//go:embed apply.png
+var ApplyData []byte
+var Apply = &fyne.StaticResource{
+	StaticName:    "apply.png",
+	StaticContent: ApplyData,
+}
+
+//go:embed discard.png
+var DiscardData []byte
+var Discard = &fyne.StaticResource{
+	StaticName:    "discard.png",
+	StaticContent: DiscardData,
+}
