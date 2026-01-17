@@ -1,9 +1,12 @@
 package ui
 
 import (
+	"image"
 	"image/color"
 	eventActions "photo-man/event-actions"
+	event_actions "photo-man/event-actions"
 	"photo-man/state"
+	customUI "photo-man/ui/custom-ui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -31,4 +34,63 @@ func TopToolbar(st *state.AppState) *fyne.Container {
 	stack2 := container.NewStack(background2, collapseItem)
 
 	return container.NewBorder(nil, nil, nil, stack2, stack1)
+}
+
+func CropImageDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) *fyne.Container {
+	label := widget.NewLabel("Crop Image: ")
+	apply := widget.NewButtonWithIcon("Apply", assets.Apply, func() {
+		var newImg image.Image
+		if st.CanvasState.GetCropState().CanCrop() {
+			newImg = event_actions.CropImageAction(st.CanvasState.GetCurrentImage(), st.CanvasState.GetCropState())
+			st.CanvasState.UpdateSceneImage(newImg)
+			event_actions.RemoveCropImageCanvas(st)
+			st.RemoveToolDialog()
+			itemWidget.Importance = widget.LowImportance
+			itemWidget.Refresh()
+		}
+	})
+
+	discard := widget.NewButtonWithIcon("Discard", assets.Discard, func() {
+		event_actions.RemoveCropImageCanvas(st)
+		st.RemoveToolDialog()
+		itemWidget.Importance = widget.LowImportance
+		itemWidget.Refresh()
+	})
+
+	return container.NewHBox(label, apply, discard)
+}
+
+func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) *fyne.Container {
+	label := widget.NewLabel("Paint Board: ")
+	colorLabel := widget.NewLabel("color: ")
+
+	colorPicker := customUI.NewCustomColorPicker(fyne.NewSize(128, 30), func(choosen color.Color) {
+		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetColor(choosen)
+	})
+	brushLabel := widget.NewLabel("brush size: ")
+
+	brushSlider := widget.NewSlider(1, 10)
+	brushSlider.OnChanged = func(value float64) {
+		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetBrushSize(int(value))
+	}
+	apply := widget.NewButtonWithIcon("Apply", assets.Apply, func() {
+		// var newImg image.Image
+		if st.CanvasState.GetPaintBoardState().IsInPaintBoard() {
+			// newImg = event_actions.CropImageAction(st.CanvasState.GetCurrentImage(), st.CanvasState.GetCropState())
+			// st.CanvasState.UpdateSceneImage(newImg)
+			// event_actions.RemoveCropImageCanvas(st)
+			// st.RemoveToolDialog()
+			// itemWidget.Importance = widget.LowImportance
+			// itemWidget.Refresh()
+		}
+	})
+
+	discard := widget.NewButtonWithIcon("Discard", assets.Discard, func() {
+		event_actions.RemovePaintBoardCanvas(st)
+		st.RemoveToolDialog()
+		itemWidget.Importance = widget.LowImportance
+		itemWidget.Refresh()
+	})
+
+	return container.NewHBox(label, colorLabel, colorPicker, brushLabel, brushSlider, apply, discard)
 }
