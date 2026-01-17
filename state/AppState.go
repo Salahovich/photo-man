@@ -6,6 +6,7 @@ import (
 	colorBlending "photo-man/core/color_blending"
 	"photo-man/core/image_adjustments"
 	"photo-man/core/image_filters"
+	"photo-man/core/image_paint"
 	"photo-man/core/image_transform"
 	"sync"
 
@@ -32,6 +33,9 @@ func NewAppState(window fyne.Window) *AppState {
 			canvasMutex:   &sync.RWMutex{},
 			cropState: &CropState{
 				isCropState: false,
+			},
+			paintBoardState: &PaintBoardState{
+				isPaintState: false,
 			},
 		},
 		AdjustmentState: &AdjustmentState{
@@ -88,6 +92,11 @@ func (s *AppState) RemoveToolDialog() {
 
 func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	img := s.CanvasState.GetOriginalImage()
+
+	// paint the image
+	if s.CanvasState.GetPaintBoardState().CanPaint() {
+		img = image_paint.Brush(img, s.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBoard())
+	}
 
 	// rotate the image
 	if s.Transformations.Rotate < 0 {

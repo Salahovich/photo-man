@@ -9,15 +9,16 @@ import (
 )
 
 type CanvasState struct {
-	imageInCanvas bool
-	currentImage  image.Image
-	scaledImage   image.Image
-	originalImage image.Image
-	canvasStack   *fyne.Container
-	cropState     *CropState
-	communication chan image.Image
-	canvasMutex   *sync.RWMutex
-	format        string
+	imageInCanvas   bool
+	currentImage    image.Image
+	scaledImage     image.Image
+	originalImage   image.Image
+	canvasStack     *fyne.Container
+	cropState       *CropState
+	paintBoardState *PaintBoardState
+	communication   chan image.Image
+	canvasMutex     *sync.RWMutex
+	format          string
 }
 
 func (c *CanvasState) UpdateSceneImage(img image.Image) {
@@ -91,6 +92,20 @@ func (c *CanvasState) GetCanvasStack() *fyne.Container {
 
 func (c *CanvasState) GetCropState() *CropState {
 	return c.cropState
+}
+
+func (c *CanvasState) GetPaintBoardState() *PaintBoardState {
+	return c.paintBoardState
+}
+func (c *CanvasState) AddPaintBoardLayer(layer *customUI.PaintBoard) {
+	c.paintBoardState.paintBoardCanvas = layer
+	c.canvasStack.Add(layer)
+	c.paintBoardState.EnablePaintBoard()
+}
+
+func (c *CanvasState) RemovePaintBoardLayer() {
+	c.canvasStack.Remove(c.paintBoardState.paintBoardCanvas)
+	c.paintBoardState.DisablePaintBoard()
 }
 
 func (c *CanvasState) AddCropLayer(layer *customUI.ResizableRectangle) {

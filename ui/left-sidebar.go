@@ -54,8 +54,19 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 	textAction := customUI.NewActionItemWidget(assets.Text, func() {
 
 	})
-	brushAction := customUI.NewActionItemWidget(assets.Brush, func() {
 
+	var brushAction *customUI.ActionItemWidget
+	brushAction = customUI.NewActionItemWidget(assets.Brush, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+		if !st.CanvasState.GetPaintBoardState().IsInPaintBoard() {
+			event_actions.InitPaintBoardCanvas(st)
+			st.ShowToolDialog(PaintBoardDialog(st, brushAction))
+		} else {
+			event_actions.RemovePaintBoardCanvas(st)
+			st.RemoveToolDialog()
+		}
 	})
 
 	eraserAction := customUI.NewActionItemWidget(assets.Eraser, func() {
