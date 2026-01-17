@@ -14,14 +14,15 @@ import (
 )
 
 type AppState struct {
-	CanvasState       *CanvasState
-	AdjustmentState   *AdjustmentState
-	AdjustmentFactors *AdjustmentFactors
-	BasicFilterState  *BasicFilterState
-	ColorBlendState   *ColorBlendState
-	Transformations   *TransformationState
-	AppEdgeContainers []*fyne.Container
-	AppWindow         fyne.Window
+	CanvasState         *CanvasState
+	AdjustmentState     *AdjustmentState
+	AdjustmentFactors   *AdjustmentFactors
+	BasicFilterState    *BasicFilterState
+	ColorBlendState     *ColorBlendState
+	Transformations     *TransformationState
+	ToolDialogContainer *fyne.Container
+	AppEdgeContainers   []*fyne.Container
+	AppWindow           fyne.Window
 }
 
 func NewAppState(window fyne.Window) *AppState {
@@ -29,6 +30,9 @@ func NewAppState(window fyne.Window) *AppState {
 		CanvasState: &CanvasState{
 			communication: make(chan image.Image),
 			canvasMutex:   &sync.RWMutex{},
+			cropState: &CropState{
+				isCropState: false,
+			},
 		},
 		AdjustmentState: &AdjustmentState{
 			Brightness: binding.NewFloat(),
@@ -70,6 +74,18 @@ func (s *AppState) SetAppEdgeContainers(containers []*fyne.Container) {
 	s.AppEdgeContainers = containers
 }
 
+func (s *AppState) SetToolDialogContainers(containers *fyne.Container) {
+	s.ToolDialogContainer = containers
+}
+
+func (s *AppState) ShowToolDialog(dialog *fyne.Container) {
+	s.ToolDialogContainer.Add(dialog)
+	s.ToolDialogContainer.Refresh()
+}
+func (s *AppState) RemoveToolDialog() {
+	s.ToolDialogContainer.RemoveAll()
+}
+
 func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	img := s.CanvasState.GetOriginalImage()
 
@@ -88,6 +104,11 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	}
 	if s.Transformations.FlipVertical {
 		img = image_transform.FlipVertically(img)
+	}
+
+	// crop image
+	if s.CanvasState.cropState.CanCrop() {
+		img = image_transform.Crop(img, s.CanvasState.cropState.GetStartPosition(), s.CanvasState.cropState.GetEndPosition())
 	}
 
 	// filter the image
@@ -114,4 +135,5 @@ func (s *AppState) Reset() {
 	s.BasicFilterState.InitBasicFilterState()
 	s.Transformations.InitTransformations()
 	s.ColorBlendState.initColorBlendingState()
+	s.CanvasState.GetCropState().InitCropState()
 }

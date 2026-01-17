@@ -389,7 +389,7 @@ func initColorBlendingArea(st *state.AppState) (*fyne.Container, *fyne.Container
 	// blending mode area
 	blendText := canvas.NewText("  Mode", color.White)
 
-	blendOptions := widget.NewSelect([]string{"Standard", "Multiply", "Screen", "Overlay"}, func(choosen string) {
+	blendOptions := widget.NewSelect([]string{"Standard", "Multiply", "Screen", "Overlay", "Exclusion"}, func(choosen string) {
 		switch choosen {
 		case "Standard":
 			st.ColorBlendState.SetMode(colorBlending.StandardBlend)
@@ -399,6 +399,8 @@ func initColorBlendingArea(st *state.AppState) (*fyne.Container, *fyne.Container
 			st.ColorBlendState.SetMode(colorBlending.ScreenBlend)
 		case "Overlay":
 			st.ColorBlendState.SetMode(colorBlending.OverlayBlend)
+		case "Exclusion":
+			st.ColorBlendState.SetMode(colorBlending.ExclusionBlend)
 		default:
 			st.ColorBlendState.SetMode(nil)
 		}
