@@ -18,11 +18,12 @@ var _ fyne.Tappable = (*PaintBoard)(nil)
 
 type PaintBoard struct {
 	widget.BaseWidget
-	board     *image.RGBA64
-	canvas    *canvas.Image
-	color     color.Color
-	painted   bool
-	brushSize int
+	board         *image.RGBA64
+	canvas        *canvas.Image
+	color         color.Color
+	painted       bool
+	inEraserState bool
+	brushSize     int
 }
 
 func NewPaintBoard(size fyne.Size, col color.Color) *PaintBoard {
@@ -59,7 +60,11 @@ func (pb *PaintBoard) Dragged(ev *fyne.DragEvent) {
 			if x < 0 || x >= pb.board.Bounds().Dx() || y < 0 || y >= pb.board.Bounds().Dy() {
 				continue
 			}
-			pb.board.SetRGBA64(x, y, targetColor)
+			if pb.inEraserState {
+				pb.board.SetRGBA64(x, y, color.RGBA64{})
+			} else {
+				pb.board.SetRGBA64(x, y, targetColor)
+			}
 		}
 	}
 	pb.Refresh()
@@ -113,8 +118,15 @@ func (pb *PaintBoard) GetBrushSize() int {
 func (pb *PaintBoard) IsPainted() bool {
 	return pb.painted
 }
+func (pb *PaintBoard) IsInEraserState() bool {
+	return pb.inEraserState
+}
+func (pb *PaintBoard) SetInEraserState(state bool) {
+	pb.inEraserState = state
+}
 func (pb *PaintBoard) ClearBoard() {
 	pb.painted = false
+	pb.inEraserState = false
 	pb.board = image.NewRGBA64(image.Rect(0, 0, pb.board.Bounds().Dx(), pb.board.Bounds().Dy()))
 	pb.canvas.Image = pb.board
 	pb.canvas.Refresh()

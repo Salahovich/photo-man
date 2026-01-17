@@ -63,7 +63,7 @@ func CropImageDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) 
 }
 
 func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) *fyne.Container {
-	label := widget.NewLabel("Paint Board:                        ")
+	label := widget.NewLabel("Paint Board:")
 	label.Alignment = fyne.TextAlignLeading
 	label.TextStyle = fyne.TextStyle{Bold: true}
 
@@ -74,6 +74,7 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 	})
 	colorPickerWrapper := container.New(layout.NewGridWrapLayout(fyne.NewSize(50, 35)), colorPicker)
 
+	// brush slider
 	brushLabel := widget.NewLabel("brush size")
 	brushSlider := widget.NewSlider(1, 10)
 	brushSlider.OnChanged = func(value float64) {
@@ -81,6 +82,7 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 	}
 	sliderWrapper := container.New(layout.NewGridWrapLayout(fyne.NewSize(100, 35)), brushSlider)
 
+	// apply button
 	apply := widget.NewButtonWithIcon("Apply", assets.Apply, func() {
 		var newImg image.Image
 		if st.CanvasState.GetPaintBoardState().CanPaint() {
@@ -93,10 +95,26 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 		}
 	})
 
-	clear := widget.NewButtonWithIcon("Clear", assets.Discard, func() {
+	// clear widget
+	clear := widget.NewToolbarAction(assets.Discard, func() {
 		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().ClearBoard()
-	})
+	}).ToolbarObject()
 
+	// eraser widget
+	var eraser *widget.Button
+	eraser = widget.NewButtonWithIcon("", assets.Eraser, func() {
+		if eraser.Importance == widget.LowImportance {
+			eraser.Importance = widget.HighImportance
+		} else {
+			eraser.Importance = widget.LowImportance
+		}
+		eraseState := st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().IsInEraserState()
+		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetInEraserState(!eraseState)
+		eraser.Refresh()
+	})
+	eraser.Importance = widget.LowImportance
+
+	// discard widget
 	discard := widget.NewButtonWithIcon("Discard", assets.Discard, func() {
 		event_actions.RemovePaintBoardCanvas(st)
 		st.RemoveToolDialog()
@@ -104,5 +122,15 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 		itemWidget.Refresh()
 	})
 
-	return container.NewHBox(label, colorLabel, colorPickerWrapper, brushLabel, sliderWrapper, apply, clear, discard)
+	// spacers
+	spacer1 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
+	spacer2 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
+
+	return container.NewHBox(
+		label, spacer1,
+		colorLabel, colorPickerWrapper,
+		brushLabel, sliderWrapper,
+		clear, eraser,
+		spacer2,
+		apply, discard)
 }
