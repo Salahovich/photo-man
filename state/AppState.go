@@ -33,9 +33,6 @@ func NewAppState(window fyne.Window) *AppState {
 			cropState: &CropState{
 				isCropState: false,
 			},
-			paintBoardState: &PaintBoardState{
-				isPaintState: false,
-			},
 		},
 		AdjustmentState: &AdjustmentState{
 			Brightness: binding.NewFloat(),
