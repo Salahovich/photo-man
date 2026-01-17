@@ -3,6 +3,7 @@ package event_actions
 import (
 	"image"
 	"image/color"
+	"photo-man/core/image_paint"
 	"photo-man/state"
 	customUI "photo-man/ui/custom-ui"
 
@@ -20,7 +21,7 @@ func InitPaintBoardCanvas(st *state.AppState) *customUI.PaintBoard {
 }
 
 func PaintBoardAction(img image.Image, cs *state.PaintBoardState) image.Image {
-	return nil
+	return image_paint.Brush(img, cs.GetPaintBoardCanvas().GetBoard())
 }
 
 func RemovePaintBoardCanvas(st *state.AppState) {

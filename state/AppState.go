@@ -6,6 +6,7 @@ import (
 	colorBlending "photo-man/core/color_blending"
 	"photo-man/core/image_adjustments"
 	"photo-man/core/image_filters"
+	"photo-man/core/image_paint"
 	"photo-man/core/image_transform"
 	"sync"
 
@@ -14,14 +15,15 @@ import (
 )
 
 type AppState struct {
-	CanvasState       *CanvasState
-	AdjustmentState   *AdjustmentState
-	AdjustmentFactors *AdjustmentFactors
-	BasicFilterState  *BasicFilterState
-	ColorBlendState   *ColorBlendState
-	Transformations   *TransformationState
-	AppEdgeContainers []*fyne.Container
-	AppWindow         fyne.Window
+	CanvasState         *CanvasState
+	AdjustmentState     *AdjustmentState
+	AdjustmentFactors   *AdjustmentFactors
+	BasicFilterState    *BasicFilterState
+	ColorBlendState     *ColorBlendState
+	Transformations     *TransformationState
+	ToolDialogContainer *fyne.Container
+	AppEdgeContainers   []*fyne.Container
+	AppWindow           fyne.Window
 }
 
 func NewAppState(window fyne.Window) *AppState {
@@ -31,6 +33,9 @@ func NewAppState(window fyne.Window) *AppState {
 			canvasMutex:   &sync.RWMutex{},
 			cropState: &CropState{
 				isCropState: false,
+			},
+			paintBoardState: &PaintBoardState{
+				isPaintState: false,
 			},
 		},
 		AdjustmentState: &AdjustmentState{
@@ -73,8 +78,25 @@ func (s *AppState) SetAppEdgeContainers(containers []*fyne.Container) {
 	s.AppEdgeContainers = containers
 }
 
+func (s *AppState) SetToolDialogContainers(containers *fyne.Container) {
+	s.ToolDialogContainer = containers
+}
+
+func (s *AppState) ShowToolDialog(dialog *fyne.Container) {
+	s.ToolDialogContainer.Add(dialog)
+	s.ToolDialogContainer.Refresh()
+}
+func (s *AppState) RemoveToolDialog() {
+	s.ToolDialogContainer.RemoveAll()
+}
+
 func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	img := s.CanvasState.GetOriginalImage()
+
+	// paint the image
+	if s.CanvasState.GetPaintBoardState().CanPaint() {
+		img = image_paint.Brush(img, s.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBoard())
+	}
 
 	// rotate the image
 	if s.Transformations.Rotate < 0 {

@@ -11,14 +11,17 @@ import (
 )
 
 // generate compile time error if the interface methods did not implemented.
-var _ desktop.Hoverable = (*ResizableRectangle)(nil)
-var _ fyne.Draggable = (*ResizableRectangle)(nil)
-var _ desktop.Cursorable = (*ResizableRectangle)(nil)
+var _ desktop.Hoverable = (*PaintBoard)(nil)
+var _ fyne.Draggable = (*PaintBoard)(nil)
+var _ desktop.Cursorable = (*PaintBoard)(nil)
+var _ fyne.Tappable = (*PaintBoard)(nil)
 
 type PaintBoard struct {
 	widget.BaseWidget
 	board     *image.RGBA64
+	canvas    *canvas.Image
 	color     color.Color
+	painted   bool
 	brushSize int
 }
 
@@ -31,8 +34,10 @@ func NewPaintBoard(size fyne.Size, col color.Color) *PaintBoard {
 	paintBoard = &PaintBoard{
 		board:     image.NewRGBA64(image.Rect(0, 0, int(size.Width), int(size.Height))),
 		color:     col,
-		brushSize: 3.0,
+		brushSize: 1.0,
+		painted:   false,
 	}
+	paintBoard.canvas = canvas.NewImageFromImage(paintBoard.board)
 
 	paintBoard.ExtendBaseWidget(paintBoard)
 
@@ -58,6 +63,12 @@ func (pb *PaintBoard) Dragged(ev *fyne.DragEvent) {
 		}
 	}
 	pb.Refresh()
+
+	defer func() {
+		if !pb.painted {
+			pb.painted = true
+		}
+	}()
 }
 
 func (pb *PaintBoard) MouseMoved(ev *desktop.MouseEvent) {
@@ -69,8 +80,8 @@ func (pb *PaintBoard) MouseIn(ev *desktop.MouseEvent) {
 func (pb *PaintBoard) MouseOut() {
 
 }
-func (pb *PaintBoard) Tapped(ev *fyne.PointEvent) {
 
+func (pb *PaintBoard) Tapped(ev *fyne.PointEvent) {
 }
 
 func (pb *PaintBoard) Cursor() desktop.Cursor {
@@ -99,7 +110,16 @@ func (pb *PaintBoard) SetBrushSize(size int) {
 func (pb *PaintBoard) GetBrushSize() int {
 	return pb.brushSize
 }
+func (pb *PaintBoard) IsPainted() bool {
+	return pb.painted
+}
+func (pb *PaintBoard) ClearBoard() {
+	pb.painted = false
+	pb.board = image.NewRGBA64(image.Rect(0, 0, pb.board.Bounds().Dx(), pb.board.Bounds().Dy()))
+	pb.canvas.Image = pb.board
+	pb.canvas.Refresh()
+}
 
 func (pb *PaintBoard) CreateRenderer() fyne.WidgetRenderer {
-	return widget.NewSimpleRenderer(canvas.NewImageFromImage(pb.board))
+	return widget.NewSimpleRenderer(pb.canvas)
 }

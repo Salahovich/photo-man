@@ -1,11 +1,12 @@
 package ui
 
 import (
-	"image"
 	"image/color"
 	"photo-man/assets"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
+
+	// "photo-man/ui"
 	customUI "photo-man/ui/custom-ui"
 
 	"fyne.io/fyne/v2"
@@ -19,19 +20,17 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 	// props toolbar items
 
 	// functionality toolbar items
-	cropAction := customUI.NewActionItemWidget(assets.Crop, func() {
+	var cropAction *customUI.ActionItemWidget
+	cropAction = customUI.NewActionItemWidget(assets.Crop, func() {
 		if !st.CanvasState.IsImageInCanvas() {
 			return
 		}
 		if !st.CanvasState.GetCropState().IsInCropState() {
 			event_actions.InitCropImageCanvas(st)
+			st.ShowToolDialog(CropImageDialog(st, cropAction))
 		} else {
-			var newImg image.Image
-			if st.CanvasState.GetCropState().CanCrop() {
-				newImg = event_actions.CropImageAction(st.CanvasState.GetCurrentImage(), st.CanvasState.GetCropState())
-				st.CanvasState.UpdateSceneImage(newImg)
-			}
 			event_actions.RemoveCropImageCanvas(st)
+			st.RemoveToolDialog()
 		}
 	})
 	rotateLeftItem := widget.NewToolbarAction(theme.MediaReplayIcon(), func() {
@@ -55,6 +54,7 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 	textAction := customUI.NewActionItemWidget(assets.Text, func() {
 
 	})
+
 	var brushAction *customUI.ActionItemWidget
 	brushAction = customUI.NewActionItemWidget(assets.Brush, func() {
 		if !st.CanvasState.IsImageInCanvas() {
