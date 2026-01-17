@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/color"
 	"photo-man/assets"
-	eventActions "photo-man/event-actions"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
 	customUI "photo-man/ui/custom-ui"
@@ -20,7 +19,7 @@ func TopToolbar(st *state.AppState) *fyne.Container {
 
 	collapseItem := widget.NewToolbarAction(theme.MenuIcon(), func() {
 		go fyne.Do(func() {
-			eventActions.ToggleRightSideBarVisibility(st)
+			event_actions.ToggleRightSideBarVisibility(st)
 		})
 	}).ToolbarObject()
 
@@ -61,5 +60,3 @@ func CropImageDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) 
 
 	return container.NewHBox(label, apply, discard)
 }
-
-
