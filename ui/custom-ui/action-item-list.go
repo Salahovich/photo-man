@@ -6,23 +6,27 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type VerticalActionItemList struct {
-	VBox   *fyne.Container
+type ActionItemList struct {
+	Box    *fyne.Container
 	Items  []*ActionItemWidget
 	radial bool
 }
 
-func NewVerticalActionItemList(radial bool, objects ...*ActionItemWidget) *VerticalActionItemList {
-	var list *VerticalActionItemList
+func NewActionItemList(radial bool, vertical bool, objects ...*ActionItemWidget) *ActionItemList {
+	var list *ActionItemList
 
-	list = &VerticalActionItemList{
+	list = &ActionItemList{
 		Items:  make([]*ActionItemWidget, 0),
-		VBox:   container.NewVBox(),
 		radial: radial,
+	}
+	if vertical {
+		list.Box = container.NewVBox()
+	} else {
+		list.Box = container.NewHBox()
 	}
 
 	list.Items = append(list.Items, objects...)
-	list.VBox.Objects = make([]fyne.CanvasObject, len(list.Items))
+	list.Box.Objects = make([]fyne.CanvasObject, len(list.Items))
 	for i, actionItem := range list.Items {
 		childTapped := actionItem.OnTapped
 		actionItem.OnTapped = func() {
@@ -36,8 +40,8 @@ func NewVerticalActionItemList(radial bool, objects ...*ActionItemWidget) *Verti
 			}
 			childTapped()
 		}
-		list.VBox.Objects[i] = actionItem
+		list.Box.Objects[i] = actionItem
 	}
-	list.VBox.Refresh()
+	list.Box.Refresh()
 	return list
 }

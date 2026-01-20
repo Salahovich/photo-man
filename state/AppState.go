@@ -6,8 +6,10 @@ import (
 	colorBlending "photo-man/core/color_blending"
 	"photo-man/core/image_adjustments"
 	"photo-man/core/image_filters"
+	"photo-man/core/image_io"
 	"photo-man/core/image_paint"
 	"photo-man/core/image_transform"
+	customUI "photo-man/ui/custom-ui"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -24,6 +26,7 @@ type AppState struct {
 	ToolDialogContainer *fyne.Container
 	AppEdgeContainers   []*fyne.Container
 	AppWindow           fyne.Window
+	SystemColor         *image_io.SystemColor
 }
 
 func NewAppState(window fyne.Window) *AppState {
@@ -32,10 +35,12 @@ func NewAppState(window fyne.Window) *AppState {
 			communication: make(chan image.Image),
 			canvasMutex:   &sync.RWMutex{},
 			cropState: &CropState{
-				isCropState: false,
+				isCropState:     false,
+				cropImageCanvas: &customUI.ResizableRectangle{},
 			},
 			paintBoardState: &PaintBoardState{
 				isPaintState: false,
+				paintBoardCanvas: &customUI.PaintBoard{},
 			},
 		},
 		AdjustmentState: &AdjustmentState{
@@ -58,7 +63,6 @@ func NewAppState(window fyne.Window) *AppState {
 			SaturationFactor:     0.0,
 		},
 		ColorBlendState: &ColorBlendState{
-			Color:   color.Black,
 			Mode:    nil,
 			Opacity: binding.NewFloat(),
 		},
@@ -67,8 +71,13 @@ func NewAppState(window fyne.Window) *AppState {
 			FlipVertical:   false,
 			FlipHorizontal: false,
 		},
+		SystemColor: &image_io.SystemColor{
+			Color: color.Black,
+		},
 		AppWindow: window,
 	}
+	newState.ColorBlendState.BlendColor = newState.SystemColor
+
 	newState.AdjustmentState.InitAdjustmentsState()
 
 	return &newState
@@ -133,7 +142,7 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	img = image_adjustments.UpdateSaturation(img, s.AdjustmentFactors.SaturationFactor)
 
 	// color blending
-	img = colorBlending.PerformBlending(img, s.ColorBlendState.Color, s.ColorBlendState.Mode)
+	img = colorBlending.PerformBlending(img, s.SystemColor.Color, s.ColorBlendState.Mode)
 
 	return img
 }

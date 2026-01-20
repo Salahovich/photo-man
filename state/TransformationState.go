@@ -1,9 +1,10 @@
 package state
 
 type TransformationState struct {
-	Rotate         int
-	FlipVertical   bool
-	FlipHorizontal bool
+	Rotate                int
+	FlipVertical          bool
+	FlipHorizontal        bool
+	inTransformationState bool
 }
 
 func (ts *TransformationState) RotateClockwise() {
@@ -30,8 +31,16 @@ func (ts *TransformationState) FlipHVertically() {
 	ts.FlipVertical = !ts.FlipVertical
 }
 
+func (ts *TransformationState) ControlTransformationState() {
+	ts.inTransformationState = !ts.inTransformationState
+}
+func (ts *TransformationState) IsInTransformationState() bool {
+	return ts.inTransformationState
+}
+
 func (ts *TransformationState) InitTransformations() {
 	ts.Rotate = 0
 	ts.FlipVertical = false
 	ts.FlipVertical = false
+	ts.inTransformationState = false
 }

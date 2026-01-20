@@ -3,19 +3,17 @@ package state
 import (
 	"image/color"
 	"math"
+	"photo-man/core/image_io"
 
 	"fyne.io/fyne/v2/data/binding"
 )
 
 type ColorBlendState struct {
-	Color   color.Color
-	Mode    func(color.Color, color.Color) color.RGBA64
-	Opacity binding.Float
+	BlendColor *image_io.SystemColor
+	Mode       func(color.Color, color.Color) color.RGBA64
+	Opacity    binding.Float
 }
 
-func (cb *ColorBlendState) SetColor(blendColor color.Color) {
-	cb.Color = blendColor
-}
 func (cb *ColorBlendState) SetMode(mode func(color.Color, color.Color) color.RGBA64) {
 	cb.Mode = mode
 }

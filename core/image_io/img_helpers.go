@@ -2,7 +2,12 @@ package image_io
 
 import (
 	"image"
+	"image/color"
 )
+
+type SystemColor struct {
+	Color color.Color
+}
 
 func GetRedValue(x, y int, img image.Image) uint16 {
 	r, _, _, _ := img.At(x, y).RGBA()
