@@ -2,7 +2,6 @@ package event_actions
 
 import (
 	"image"
-	"image/color"
 	"photo-man/core/image_paint"
 	"photo-man/state"
 	customUI "photo-man/ui/custom-ui"
@@ -13,7 +12,7 @@ import (
 func InitPaintBoardCanvas(st *state.AppState) *customUI.PaintBoard {
 
 	w, h := float32(st.CanvasState.GetCurrentImage().Bounds().Dx()), float32(st.CanvasState.GetCurrentImage().Bounds().Dy())
-	paintBoard := customUI.NewPaintBoard(fyne.NewSize(w, h), color.Black)
+	paintBoard := customUI.NewPaintBoard(fyne.NewSize(w, h), st.SystemColor)
 
 	st.CanvasState.AddPaintBoardLayer(paintBoard)
 

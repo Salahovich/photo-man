@@ -7,7 +7,6 @@ import (
 	"photo-man/core/image_filters"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
-	customUI "photo-man/ui/custom-ui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -52,9 +51,8 @@ func RightSidebar(st *state.AppState) *fyne.Container {
 	basicFilters := widget.NewAccordionItem("Basic Filters", basicFiltersContainer)
 
 	// predefined-filters accordion item
-	colorArea, blendArea, transperancyArea := initColorBlendingArea(st)
+	blendArea, transperancyArea := initColorBlendingArea(st)
 	colorBlendContainer := container.NewVBox(
-		colorArea,
 		blendArea,
 		transperancyArea)
 	colorBlend := widget.NewAccordionItem("Color Blending", colorBlendContainer)
@@ -377,15 +375,7 @@ func initSobelArea(st *state.AppState) *fyne.Container {
 	return container
 }
 
-func initColorBlendingArea(st *state.AppState) (*fyne.Container, *fyne.Container, *fyne.Container) {
-	// color area
-	colorText := canvas.NewText("  Color", color.White)
-	colorPicker := customUI.NewCustomColorPicker(fyne.NewSize(128, 30), func(choosen color.Color) {
-		st.ColorBlendState.SetColor(choosen)
-	})
-
-	colorContainer := container.NewBorder(nil, nil, colorText, colorPicker)
-
+func initColorBlendingArea(st *state.AppState) (*fyne.Container, *fyne.Container) {
 	// blending mode area
 	blendText := canvas.NewText("  Mode", color.White)
 
@@ -424,7 +414,7 @@ func initColorBlendingArea(st *state.AppState) (*fyne.Container, *fyne.Container
 
 	transContainer := container.NewVBox(opacityTextValueContainer, opacitySlider)
 
-	return colorContainer, blendContainer, transContainer
+	return blendContainer, transContainer
 }
 
 func initMetadataArea() *fyne.Container {

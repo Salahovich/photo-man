@@ -28,7 +28,7 @@ func (pb *PaintBoardState) SetCropImageCanvas(board *customUI.PaintBoard) {
 func (pb *PaintBoardState) CanPaint() bool {
 	return pb.paintBoardCanvas.IsPainted()
 }
-func (pb *PaintBoardState) InitCropState() {
+func (pb *PaintBoardState) InitPaintBoardState() {
 	pb.isPaintState = false
 }
 

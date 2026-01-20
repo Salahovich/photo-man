@@ -11,9 +11,8 @@ func UpdateColorBlendingAction(img image.Image, cbs *state.ColorBlendState) imag
 
 	if opacity, _ := cbs.Opacity.Get(); opacity != 0 && cbs.Mode != nil {
 		opacityNorm := (opacity / 100.0) * 65535.0
-		r, g, b, _ := cbs.Color.RGBA()
+		r, g, b, _ := cbs.BlendColor.Color.RGBA()
 		blendColor := color.RGBA64{R: uint16(r), G: uint16(g), B: uint16(b), A: uint16(opacityNorm)}
-		cbs.SetColor(blendColor)
 
 		img = colorBlending.PerformBlending(img, blendColor, cbs.Mode)
 	}

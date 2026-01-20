@@ -68,19 +68,52 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 	label.TextStyle = fyne.TextStyle{Bold: true}
 
 	// color picker
-	colorLabel := widget.NewLabel("color")
-	colorPicker := customUI.NewCustomColorPicker(fyne.NewSize(60, 10), func(choosen color.Color) {
-		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetColor(choosen)
-	})
-	colorPickerWrapper := container.New(layout.NewGridWrapLayout(fyne.NewSize(50, 35)), colorPicker)
 
 	// brush slider
 	brushLabel := widget.NewLabel("brush size")
-	brushSlider := widget.NewSlider(1, 10)
+	brushSlider := widget.NewSlider(1, 20)
 	brushSlider.OnChanged = func(value float64) {
 		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetBrushSize(int(value))
 	}
 	sliderWrapper := container.New(layout.NewGridWrapLayout(fyne.NewSize(100, 35)), brushSlider)
+
+	brushTypeLabel := widget.NewLabel("Brush Type")
+
+	var squareBrush *customUI.ActionItemWidget
+	squareBrush = customUI.NewActionItemWidget(assets.Square, func() {
+		if st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBrushType() == customUI.BRUSH_TYPE_RECTANGLE {
+			st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetNoBrush()
+		} else {
+			st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetBrushType(customUI.BRUSH_TYPE_RECTANGLE)
+		}
+		squareBrush.Refresh()
+	})
+
+	var circleBrush *customUI.ActionItemWidget
+	circleBrush = customUI.NewActionItemWidget(assets.Circle, func() {
+		if st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBrushType() == customUI.BRUSH_TYPE_CIRCLE {
+			st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetNoBrush()
+		} else {
+			st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetBrushType(customUI.BRUSH_TYPE_CIRCLE)
+		}
+		circleBrush.Refresh()
+	})
+
+	// eraser widget
+	var eraserBrush *customUI.ActionItemWidget
+	eraserBrush = customUI.NewActionItemWidget(assets.Eraser, func() {
+		if st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBrushType() == customUI.BRUSH_TYPE_ERASER {
+			st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetNoBrush()
+		} else {
+			st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetBrushType(customUI.BRUSH_TYPE_ERASER)
+		}
+		eraserBrush.Refresh()
+	})
+
+	// clear widget
+	clear := widget.NewButtonWithIcon("Clear", assets.Discard, func() {
+		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().ClearBoard()
+	})
 
 	// apply button
 	apply := widget.NewButtonWithIcon("Apply", assets.Apply, func() {
@@ -95,25 +128,6 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 		}
 	})
 
-	// clear widget
-	clear := widget.NewToolbarAction(assets.Discard, func() {
-		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().ClearBoard()
-	}).ToolbarObject()
-
-	// eraser widget
-	var eraser *widget.Button
-	eraser = widget.NewButtonWithIcon("", assets.Eraser, func() {
-		if eraser.Importance == widget.LowImportance {
-			eraser.Importance = widget.HighImportance
-		} else {
-			eraser.Importance = widget.LowImportance
-		}
-		eraseState := st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().IsInEraserState()
-		st.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().SetInEraserState(!eraseState)
-		eraser.Refresh()
-	})
-	eraser.Importance = widget.LowImportance
-
 	// discard widget
 	discard := widget.NewButtonWithIcon("Discard", assets.Discard, func() {
 		event_actions.RemovePaintBoardCanvas(st)
@@ -126,11 +140,49 @@ func PaintBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget)
 	spacer1 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
 	spacer2 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
 
+	brushTypeContainer := customUI.NewActionItemList(true, false, squareBrush, circleBrush, eraserBrush)
+
 	return container.NewHBox(
 		label, spacer1,
-		colorLabel, colorPickerWrapper,
 		brushLabel, sliderWrapper,
-		clear, eraser,
+		brushTypeLabel, brushTypeContainer.Box,
 		spacer2,
-		apply, discard)
+		clear, apply, discard)
+}
+
+func TransformationsDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) *fyne.Container {
+	var rotateLeftItem *widget.Button
+	rotateLeftItem = widget.NewButtonWithIcon("Rotate Left", theme.MediaReplayIcon(), func() {
+		st.Transformations.RotateAntiClockwise()
+		go event_actions.RotateAntiClockwiseAction(st)
+	})
+	rotateLeftItem.Importance = widget.MediumImportance
+
+	var rotateRightItem *widget.Button
+	rotateRightItem = widget.NewButtonWithIcon("Rotate Right", theme.ViewRefreshIcon(), func() {
+		rotateRightItem.Refresh()
+		st.Transformations.RotateClockwise()
+		go event_actions.RotateClockwiseAction(st)
+
+	})
+	rotateRightItem.Importance = widget.MediumImportance
+
+	var flipHorizontallyItem *widget.Button
+	flipHorizontallyItem = widget.NewButtonWithIcon("Flip Horizontally", assets.FlipRight, func() {
+		flipHorizontallyItem.Refresh()
+		st.Transformations.FlipHorizontally()
+		go event_actions.FlipHorizontallyAction(st)
+
+	})
+	flipHorizontallyItem.Importance = widget.MediumImportance
+
+	var flipVerticallyItem *widget.Button
+	flipVerticallyItem = widget.NewButtonWithIcon("Flip Vertically", assets.FlipDown, func() {
+		flipVerticallyItem.Refresh()
+		st.Transformations.FlipHVertically()
+		go event_actions.FlipVerticallyAction(st)
+	})
+	flipVerticallyItem.Importance = widget.MediumImportance
+
+	return container.NewHBox(rotateLeftItem, rotateRightItem, flipHorizontallyItem, flipVerticallyItem)
 }

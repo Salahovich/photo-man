@@ -106,3 +106,59 @@ var Discard = &fyne.StaticResource{
 	StaticName:    "discard.png",
 	StaticContent: DiscardData,
 }
+
+//go:embed transformations.png
+var TransformationData []byte
+var Transformation = &fyne.StaticResource{
+	StaticName:    "transformations.png",
+	StaticContent: TransformationData,
+}
+
+//go:embed square.png
+var SquareData []byte
+var Square = &fyne.StaticResource{
+	StaticName:    "square.png",
+	StaticContent: SquareData,
+}
+
+//go:embed circle.png
+var CircleData []byte
+var Circle = &fyne.StaticResource{
+	StaticName:    "circle.png",
+	StaticContent: CircleData,
+}
+
+//go:embed blur.png
+var BlurData []byte
+var Blur = &fyne.StaticResource{
+	StaticName:    "blur.png",
+	StaticContent: BlurData,
+}
+
+//go:embed sharpen.png
+var SharpenData []byte
+var Sharpen = &fyne.StaticResource{
+	StaticName:    "sharpen.png",
+	StaticContent: SharpenData,
+}
+
+//go:embed bucket.png
+var BucketData []byte
+var Bucket = &fyne.StaticResource{
+	StaticName:    "bucket.png",
+	StaticContent: BucketData,
+}
+
+//go:embed eye-drop.png
+var EyeDropData []byte
+var EyeDrop = &fyne.StaticResource{
+	StaticName:    "eye-drop.png",
+	StaticContent: EyeDropData,
+}
+
+//go:embed clone.png
+var CloneData []byte
+var Clone = &fyne.StaticResource{
+	StaticName:    "clone.png",
+	StaticContent: CloneData,
+}

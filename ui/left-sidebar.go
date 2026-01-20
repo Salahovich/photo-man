@@ -12,47 +12,37 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 func LeftSidebar(st *state.AppState) *fyne.Container {
-	// props toolbar items
 
 	// functionality toolbar items
+	var transformations *customUI.ActionItemWidget
+	transformations = customUI.NewActionItemWidget(assets.Transformation, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+		if !st.Transformations.IsInTransformationState() {
+			st.ShowToolDialog(TransformationsDialog(st, transformations))
+		} else {
+			st.RemoveToolDialog()
+		}
+		st.Transformations.ControlTransformationState()
+	})
+
 	var cropAction *customUI.ActionItemWidget
 	cropAction = customUI.NewActionItemWidget(assets.Crop, func() {
 		if !st.CanvasState.IsImageInCanvas() {
 			return
 		}
 		if !st.CanvasState.GetCropState().IsInCropState() {
-			event_actions.InitCropImageCanvas(st)
 			st.ShowToolDialog(CropImageDialog(st, cropAction))
+			event_actions.InitCropImageCanvas(st)
 		} else {
 			event_actions.RemoveCropImageCanvas(st)
 			st.RemoveToolDialog()
 		}
-	})
-	rotateLeftItem := widget.NewToolbarAction(theme.MediaReplayIcon(), func() {
-		st.Transformations.RotateAntiClockwise()
-		go event_actions.RotateAntiClockwiseAction(st)
-	}).ToolbarObject()
-	rotateRightItem := widget.NewToolbarAction(theme.ViewRefreshIcon(), func() {
-		st.Transformations.RotateClockwise()
-		go event_actions.RotateClockwiseAction(st)
-
-	}).ToolbarObject()
-	flipHorizontallyItem := widget.NewToolbarAction(assets.FlipRight, func() {
-		st.Transformations.FlipHorizontally()
-		go event_actions.FlipHorizontallyAction(st)
-
-	}).ToolbarObject()
-	flipVerticallyItem := widget.NewToolbarAction(assets.FlipDown, func() {
-		st.Transformations.FlipHVertically()
-		go event_actions.FlipVerticallyAction(st)
-	}).ToolbarObject()
-	textAction := customUI.NewActionItemWidget(assets.Text, func() {
-
 	})
 
 	var brushAction *customUI.ActionItemWidget
@@ -69,29 +59,73 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 		}
 	})
 
-	eraserAction := customUI.NewActionItemWidget(assets.Eraser, func() {
+	var blurItem *customUI.ActionItemWidget
+	blurItem = customUI.NewActionItemWidget(assets.Blur, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+	})
+
+	var sharpenItem *customUI.ActionItemWidget
+	sharpenItem = customUI.NewActionItemWidget(assets.Sharpen, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+	})
+
+	var cloneItem *customUI.ActionItemWidget
+	cloneItem = customUI.NewActionItemWidget(assets.Clone, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+	})
+
+	var eyeDropItem *customUI.ActionItemWidget
+	eyeDropItem = customUI.NewActionItemWidget(assets.EyeDrop, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+	})
+
+	var bucketItem *customUI.ActionItemWidget
+	bucketItem = customUI.NewActionItemWidget(assets.Bucket, func() {
+		if !st.CanvasState.IsImageInCanvas() {
+			return
+		}
+	})
+
+	textAction := customUI.NewActionItemWidget(assets.Text, func() {
 
 	})
 
-	paletteAction := customUI.NewActionItemWidget(assets.Palette, func() {
-
+	paletteItem := customUI.NewCustomColorPicker(fyne.NewSize(30, 30), func(choosen color.Color) {
+		st.SystemColor.Color = choosen
 	})
 
 	// box container
-	verticalActionItemList := customUI.NewVerticalActionItemList(true,
+	verticalActionItemList := customUI.NewActionItemList(
+		true,
+		true,
+		transformations,
 		cropAction,
-		textAction,
 		brushAction,
-		eraserAction,
-		paletteAction)
-
-	verticalTransformations := container.NewVBox(rotateLeftItem, rotateRightItem, flipHorizontallyItem, flipVerticallyItem)
+		blurItem,
+		sharpenItem,
+		cloneItem,
+		bucketItem,
+		eyeDropItem,
+		textAction,
+	)
 
 	bgColor := color.RGBA{R: 62, G: 62, B: 62, A: 255}
 	background := canvas.NewRectangle(bgColor)
 
 	centerContainer := container.NewCenter(
-		container.NewVBox(verticalTransformations, widget.NewToolbarSeparator().ToolbarObject(), verticalActionItemList.VBox))
+		container.NewVBox(
+			verticalActionItemList.Box,
+			widget.NewToolbarSeparator().ToolbarObject(),
+			container.NewGridWrap(fyne.NewSize(30, 5), widget.NewToolbarSpacer().ToolbarObject()),
+			container.NewCenter(container.NewGridWrap(fyne.NewSize(30, 30), paletteItem))))
 
 	return container.NewStack(background, container.NewPadded(centerContainer))
 }
