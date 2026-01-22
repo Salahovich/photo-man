@@ -275,3 +275,79 @@ func BlurBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) 
 		spacer2,
 		clear, apply, discard)
 }
+
+func SharpenBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) *fyne.Container {
+	label := widget.NewLabel("Sharpen Brush:")
+	label.Alignment = fyne.TextAlignLeading
+	label.TextStyle = fyne.TextStyle{Bold: true}
+
+	// color picker
+
+	// brush slider
+	brushLabel := widget.NewLabel("brush size")
+	brushSlider := widget.NewSlider(1, 20)
+	brushSlider.OnChanged = func(value float64) {
+		st.CanvasState.GetSharpenBoardState().GetSharpenBoardCanvas().SetBrushSize(int(value))
+	}
+	sliderWrapper := container.New(layout.NewGridWrapLayout(fyne.NewSize(100, 35)), brushSlider)
+
+	sharpenQualityLabel := widget.NewLabel("Sharpen Quality")
+
+	sharpenQualityList := widget.NewSelect([]string{"LOW", "MED", "HIGH"}, func(choosen string) {
+		switch choosen {
+		case "LOW":
+			st.CanvasState.GetSharpenBoardState().GetSharpenBoardCanvas().SetSharpenesHardness(image_filters.LOW_SHARP)
+		case "MED":
+			st.CanvasState.GetSharpenBoardState().GetSharpenBoardCanvas().SetSharpenesHardness(image_filters.MEDIUM_SHARP)
+		case "HIGH":
+			st.CanvasState.GetSharpenBoardState().GetSharpenBoardCanvas().SetSharpenesHardness(image_filters.HIGH_SHARP)
+		}
+	})
+
+	// eraser widget
+	var eraserBrush *customUI.ActionItemWidget
+	eraserBrush = customUI.NewActionItemWidget(assets.Eraser, func() {
+		st.CanvasState.GetSharpenBoardState().GetSharpenBoardCanvas().ToggleEraserBrush()
+		eraserBrush.Refresh()
+	})
+
+	// clear widget
+	clear := widget.NewButtonWithIcon("Clear", assets.Discard, func() {
+		st.CanvasState.GetSharpenBoardState().GetSharpenBoardCanvas().ClearBoard()
+	})
+
+	// apply button
+	apply := widget.NewButtonWithIcon("Apply", assets.Apply, func() {
+		var newImg image.Image
+		if st.CanvasState.GetSharpenBoardState().CanSharpen() {
+			newImg = event_actions.SharpenBoardAction(st.CanvasState.GetCurrentImage(), st.CanvasState.GetSharpenBoardState())
+			st.CanvasState.UpdateSceneImage(newImg)
+			event_actions.RemoveSharpenBoardanvas(st)
+			st.RemoveToolDialog()
+			itemWidget.Importance = widget.LowImportance
+			itemWidget.Refresh()
+		}
+	})
+
+	// discard widget
+	discard := widget.NewButtonWithIcon("Discard", assets.Discard, func() {
+		event_actions.RemoveSharpenBoardanvas(st)
+		st.RemoveToolDialog()
+		itemWidget.Importance = widget.LowImportance
+		itemWidget.Refresh()
+	})
+
+	// spacers
+	spacer1 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
+	spacer2 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
+
+	brushTypeContainer := customUI.NewActionItemList(true, false, eraserBrush)
+
+	return container.NewHBox(
+		label, spacer1,
+		brushLabel, sliderWrapper,
+		sharpenQualityLabel, sharpenQualityList,
+		brushTypeContainer.Box,
+		spacer2,
+		clear, apply, discard)
+}

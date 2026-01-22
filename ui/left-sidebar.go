@@ -78,6 +78,13 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 		if !st.CanvasState.IsImageInCanvas() {
 			return
 		}
+		if !st.CanvasState.GetSharpenBoardState().IsInSharpenBoard() {
+			event_actions.InitSharpenBoardCanvas(st)
+			st.ShowToolDialog(SharpenBoardDialog(st, sharpenItem))
+		} else {
+			event_actions.RemoveSharpenBoardanvas(st)
+			st.RemoveToolDialog()
+		}
 	})
 
 	var cloneItem *customUI.ActionItemWidget

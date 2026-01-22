@@ -9,17 +9,18 @@ import (
 )
 
 type CanvasState struct {
-	imageInCanvas   bool
-	currentImage    image.Image
-	scaledImage     image.Image
-	originalImage   image.Image
-	canvasStack     *fyne.Container
-	cropState       *CropState
-	paintBoardState *PaintBoardState
-	blurBoradState  *BlurBoardState
-	communication   chan image.Image
-	canvasMutex     *sync.RWMutex
-	format          string
+	imageInCanvas     bool
+	currentImage      image.Image
+	scaledImage       image.Image
+	originalImage     image.Image
+	canvasStack       *fyne.Container
+	cropState         *CropState
+	paintBoardState   *PaintBoardState
+	blurBoradState    *BlurBoardState
+	sharpenBoradState *SharpenBoardState
+	communication     chan image.Image
+	canvasMutex       *sync.RWMutex
+	format            string
 }
 
 func (c *CanvasState) UpdateSceneImage(img image.Image) {
@@ -101,6 +102,9 @@ func (c *CanvasState) GetPaintBoardState() *PaintBoardState {
 func (c *CanvasState) GetBlurBoardState() *BlurBoardState {
 	return c.blurBoradState
 }
+func (c *CanvasState) GetSharpenBoardState() *SharpenBoardState {
+	return c.sharpenBoradState
+}
 
 func (c *CanvasState) AddPaintBoardLayer(layer *customUI.PaintBoard) {
 	c.paintBoardState.paintBoardCanvas = layer
@@ -121,6 +125,17 @@ func (c *CanvasState) AddBlurBoardLayer(layer *customUI.BlurBoard) {
 
 func (c *CanvasState) RemoveBlurBoardLayer() {
 	c.canvasStack.Remove(c.blurBoradState.blurBoardCanvas)
+	c.blurBoradState.DisableBlurBoard()
+}
+
+func (c *CanvasState) AddSharpenBoardLayer(layer *customUI.SharpenBoard) {
+	c.sharpenBoradState.sharpenBoardCanvas = layer
+	c.sharpenBoradState.EnableSharpenBoard()
+	c.canvasStack.Add(layer)
+}
+
+func (c *CanvasState) RemoveSharpenBoardLayer() {
+	c.canvasStack.Remove(c.sharpenBoradState.GetSharpenBoardCanvas())
 	c.blurBoradState.DisableBlurBoard()
 }
 
