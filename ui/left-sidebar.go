@@ -64,6 +64,13 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 		if !st.CanvasState.IsImageInCanvas() {
 			return
 		}
+		if !st.CanvasState.GetBlurBoardState().IsInBlurBoard() {
+			event_actions.InitBlurBoardCanvas(st)
+			st.ShowToolDialog(BlurBoardDialog(st, blurItem))
+		} else {
+			event_actions.RemoveBlurBoardanvas(st)
+			st.RemoveToolDialog()
+		}
 	})
 
 	var sharpenItem *customUI.ActionItemWidget

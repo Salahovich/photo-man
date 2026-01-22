@@ -16,6 +16,7 @@ type CanvasState struct {
 	canvasStack     *fyne.Container
 	cropState       *CropState
 	paintBoardState *PaintBoardState
+	blurBoradState  *BlurBoardState
 	communication   chan image.Image
 	canvasMutex     *sync.RWMutex
 	format          string
@@ -97,6 +98,10 @@ func (c *CanvasState) GetCropState() *CropState {
 func (c *CanvasState) GetPaintBoardState() *PaintBoardState {
 	return c.paintBoardState
 }
+func (c *CanvasState) GetBlurBoardState() *BlurBoardState {
+	return c.blurBoradState
+}
+
 func (c *CanvasState) AddPaintBoardLayer(layer *customUI.PaintBoard) {
 	c.paintBoardState.paintBoardCanvas = layer
 	c.canvasStack.Add(layer)
@@ -106,6 +111,17 @@ func (c *CanvasState) AddPaintBoardLayer(layer *customUI.PaintBoard) {
 func (c *CanvasState) RemovePaintBoardLayer() {
 	c.canvasStack.Remove(c.paintBoardState.paintBoardCanvas)
 	c.paintBoardState.DisablePaintBoard()
+}
+
+func (c *CanvasState) AddBlurBoardLayer(layer *customUI.BlurBoard) {
+	c.blurBoradState.blurBoardCanvas = layer
+	c.blurBoradState.EnableBlurBoard()
+	c.canvasStack.Add(layer)
+}
+
+func (c *CanvasState) RemoveBlurBoardLayer() {
+	c.canvasStack.Remove(c.blurBoradState.blurBoardCanvas)
+	c.blurBoradState.DisableBlurBoard()
 }
 
 func (c *CanvasState) AddCropLayer(layer *customUI.ResizableRectangle) {

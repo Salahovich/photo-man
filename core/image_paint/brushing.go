@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-func Brush(current image.Image, paintBoard image.Image) image.Image {
+func BrushAction(current image.Image, paintBoard image.Image) image.Image {
 	newImg := image.NewRGBA64(current.Bounds())
 	wg := sync.WaitGroup{}
 	wg.Add(current.Bounds().Dy())

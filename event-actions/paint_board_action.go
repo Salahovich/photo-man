@@ -20,7 +20,7 @@ func InitPaintBoardCanvas(st *state.AppState) *customUI.PaintBoard {
 }
 
 func PaintBoardAction(img image.Image, cs *state.PaintBoardState) image.Image {
-	return image_paint.Brush(img, cs.GetPaintBoardCanvas().GetBoard())
+	return image_paint.BrushAction(img, cs.GetPaintBoardCanvas().GetBoard())
 }
 
 func RemovePaintBoardCanvas(st *state.AppState) {

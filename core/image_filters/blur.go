@@ -2,6 +2,7 @@ package image_filters
 
 import (
 	"image"
+	"image/color"
 	"photo-man/core/kernel_utils"
 )
 
@@ -44,12 +45,49 @@ var high_gaussian_blur_kernel = [][]float32{
 	{1.0 / 4096, 6.0 / 4096, 15.0 / 4096, 20.0 / 4096, 15.0 / 4096, 6.0 / 4096, 1.0 / 4096}}
 
 type BLUR_QUALITY int
+type BLUR_TYPE int
 
 const (
 	LOW_BLUR    BLUR_QUALITY = 1
 	MEDIUM_BLUR BLUR_QUALITY = 2
 	HIGH_BLUR   BLUR_QUALITY = 3
 )
+
+const (
+	SHAPE_BLUR    BLUR_TYPE = 1
+	GAUSSIAN_BLUR BLUR_TYPE = 2
+)
+
+func BlurForBrush(x, y int, old image.Image, blurType BLUR_TYPE, quality BLUR_QUALITY) color.Color {
+	switch quality {
+	case LOW_BLUR:
+		if blurType == SHAPE_BLUR {
+			return kernel_utils.ApplyKernelForBrush(x, y, old, low_blur_kernel)
+		} else if blurType == GAUSSIAN_BLUR {
+			return kernel_utils.ApplyKernelForBrush(x, y, old, low_gaussian_blur_kernel)
+		} else {
+			return color.RGBA64{}
+		}
+	case MEDIUM_BLUR:
+		if blurType == SHAPE_BLUR {
+			return kernel_utils.ApplyKernelForBrush(x, y, old, medium_blur_kernel)
+		} else if blurType == GAUSSIAN_BLUR {
+			return kernel_utils.ApplyKernelForBrush(x, y, old, medium_gaussian_blur_kernel)
+		} else {
+			return color.RGBA64{}
+		}
+	case HIGH_BLUR:
+		if blurType == SHAPE_BLUR {
+			return kernel_utils.ApplyKernelForBrush(x, y, old, high_blur_kernel)
+		} else if blurType == GAUSSIAN_BLUR {
+			return kernel_utils.ApplyKernelForBrush(x, y, old, high_gaussian_blur_kernel)
+		} else {
+			return color.RGBA64{}
+		}
+	default:
+		return color.RGBA64{}
+	}
+}
 
 func SimpleBlur(old image.Image, quality BLUR_QUALITY) image.Image {
 	switch quality {

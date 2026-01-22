@@ -21,6 +21,15 @@ func ApplyKernel(srcImg image.Image, kernel [][]float32) image.Image {
 
 }
 
+func ApplyKernelForBrush(x, y int, srcImg image.Image, kernel [][]float32) color.Color {
+
+	dx, dy := len(kernel[0])/2, len(kernel)/2
+	kw, kh := len(kernel), len(kernel[0])
+
+	return applyRGBAImageKernelForBrush(x, y, dx, dy, kw, kh, srcImg, kernel)
+
+}
+
 // func applyGrayImageKernel(width, height, dx, dy, kw, kh int, oldImg image.Image, newImg *image.Gray, kernel [][]float32) *image.Gray {
 // 	for y := 0; y < height; y++ {
 // 		for x := 0; x < width; x++ {
@@ -50,4 +59,15 @@ func applyRGBAImageKernel(width, height, dx, dy, kw, kh int, oldImg image.Image,
 	}
 	wg.Wait()
 	return newImg
+}
+
+func applyRGBAImageKernelForBrush(x, y int, dx, dy, kw, kh int, oldImg image.Image, kernel [][]float32) color.Color {
+
+	var red, green, blue, alpha uint16
+	red = CalculateNormalizedValue(x, y, dx, dy, kw, kh, oldImg, kernel, imgHelpers.GetRedValue)
+	green = CalculateNormalizedValue(x, y, dx, dy, kw, kh, oldImg, kernel, imgHelpers.GetGreenValue)
+	blue = CalculateNormalizedValue(x, y, dx, dy, kw, kh, oldImg, kernel, imgHelpers.GetBlueValue)
+	alpha = imgHelpers.GetAlphaValue(x, y, oldImg)
+
+	return color.RGBA64{R: red, G: green, B: blue, A: alpha}
 }
