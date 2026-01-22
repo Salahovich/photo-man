@@ -3,6 +3,7 @@ package ui
 import (
 	"photo-man/assets"
 	"photo-man/state"
+	customUI "photo-man/ui/custom-ui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -17,13 +18,12 @@ func ViewPortContainer(st *state.AppState) *fyne.Container {
 
 type Viewport struct {
 	canvasStack *fyne.Container
-	imageView   *canvas.Image
+	imageView   *customUI.CustomImageCanvas
 	placeholder *fyne.Container
 }
 
 func NewViewport(st *state.AppState) *Viewport {
-	imgCanvas := canvas.NewImageFromResource(nil)
-	imgCanvas.FillMode = canvas.ImageFillContain
+	imgCanvas := customUI.NewCustomImageCanvas(st.CanvasState.SystemColor)
 
 	noPhotoIcon := canvas.NewImageFromResource(assets.NoPhoto)
 	noPhotoIcon.FillMode = canvas.ImageFillContain
@@ -45,6 +45,7 @@ func NewViewport(st *state.AppState) *Viewport {
 	}
 
 	st.CanvasState.SetCanvasStack(canvasContainerStack)
+	st.CanvasState.SetCanvas(imgCanvas)
 
 	// start the View Port channel.
 	viewPortState.UpdateViewPortImage(st)
@@ -59,12 +60,8 @@ func (v *Viewport) UpdateViewPortImage(st *state.AppState) {
 					v.Clear()
 				})
 			} else {
-				w, h := float32(image.Bounds().Dx()), float32(image.Bounds().Dy())
 				fyne.Do(func() {
-					v.imageView.Image = image
-					v.imageView.SetMinSize(fyne.Size{Width: w, Height: h})
-
-					v.imageView.Refresh()
+					v.imageView.SetImageInCanvas(image)
 					if v.placeholder.Visible() {
 						v.placeholder.Hide()
 					}
@@ -76,7 +73,6 @@ func (v *Viewport) UpdateViewPortImage(st *state.AppState) {
 }
 
 func (v *Viewport) Clear() {
-	v.imageView.Image = nil
-	v.imageView.Refresh()
+	v.imageView.ClearCanvas()
 	v.placeholder.Show()
 }

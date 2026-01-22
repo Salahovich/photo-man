@@ -26,7 +26,6 @@ type AppState struct {
 	ToolDialogContainer *fyne.Container
 	AppEdgeContainers   []*fyne.Container
 	AppWindow           fyne.Window
-	SystemColor         *image_io.SystemColor
 }
 
 func NewAppState(window fyne.Window) *AppState {
@@ -34,6 +33,7 @@ func NewAppState(window fyne.Window) *AppState {
 		CanvasState: &CanvasState{
 			communication: make(chan image.Image),
 			canvasMutex:   &sync.RWMutex{},
+			imageCanvas:   &customUI.CustomImageCanvas{},
 			cropState: &CropState{
 				isCropState:     false,
 				cropImageCanvas: &customUI.ResizableRectangle{},
@@ -49,6 +49,12 @@ func NewAppState(window fyne.Window) *AppState {
 			sharpenBoradState: &SharpenBoardState{
 				isSharpenState:     false,
 				sharpenBoardCanvas: &customUI.SharpenBoard{},
+			},
+			eyeDropState: &EyeDropState{
+				isEyeDropState: false,
+			},
+			SystemColor: &image_io.SystemColor{
+				Color: color.Black,
 			},
 		},
 		AdjustmentState: &AdjustmentState{
@@ -79,12 +85,9 @@ func NewAppState(window fyne.Window) *AppState {
 			FlipVertical:   false,
 			FlipHorizontal: false,
 		},
-		SystemColor: &image_io.SystemColor{
-			Color: color.Black,
-		},
 		AppWindow: window,
 	}
-	newState.ColorBlendState.BlendColor = newState.SystemColor
+	newState.ColorBlendState.BlendColor = newState.CanvasState.SystemColor
 
 	newState.AdjustmentState.InitAdjustmentsState()
 
@@ -160,7 +163,7 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	img = image_adjustments.UpdateSaturation(img, s.AdjustmentFactors.SaturationFactor)
 
 	// color blending
-	img = colorBlending.PerformBlending(img, s.SystemColor.Color, s.ColorBlendState.Mode)
+	img = colorBlending.PerformBlending(img, s.CanvasState.SystemColor.Color, s.ColorBlendState.Mode)
 
 	return img
 }

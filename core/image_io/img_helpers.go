@@ -3,10 +3,19 @@ package image_io
 import (
 	"image"
 	"image/color"
+
+	"fyne.io/fyne/v2/canvas"
 )
 
 type SystemColor struct {
+	Rect  canvas.Rectangle
 	Color color.Color
+}
+
+func (sc *SystemColor) UpdateColor(color color.Color) {
+	sc.Color = color
+	sc.Rect.FillColor = color
+	sc.Rect.Refresh()
 }
 
 func GetRedValue(x, y int, img image.Image) uint16 {

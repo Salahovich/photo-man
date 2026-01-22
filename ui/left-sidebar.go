@@ -99,6 +99,8 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 		if !st.CanvasState.IsImageInCanvas() {
 			return
 		}
+		st.CanvasState.GetEyeDropState().ToggleEyeDropState()
+		st.CanvasState.GetCanvas().ToggleEyeDropState()
 	})
 
 	var bucketItem *customUI.ActionItemWidget
@@ -112,9 +114,7 @@ func LeftSidebar(st *state.AppState) *fyne.Container {
 
 	})
 
-	paletteItem := customUI.NewCustomColorPicker(fyne.NewSize(30, 30), func(choosen color.Color) {
-		st.SystemColor.Color = choosen
-	})
+	paletteItem := customUI.NewCustomColorPicker(fyne.NewSize(30, 30), st.CanvasState.SystemColor, func(choosen color.Color) {})
 
 	// box container
 	verticalActionItemList := customUI.NewActionItemList(

@@ -12,7 +12,7 @@ import (
 func InitPaintBoardCanvas(st *state.AppState) *customUI.PaintBoard {
 
 	w, h := float32(st.CanvasState.GetCurrentImage().Bounds().Dx()), float32(st.CanvasState.GetCurrentImage().Bounds().Dy())
-	paintBoard := customUI.NewPaintBoard(fyne.NewSize(w, h), st.SystemColor)
+	paintBoard := customUI.NewPaintBoard(fyne.NewSize(w, h), st.CanvasState.SystemColor)
 
 	st.CanvasState.AddPaintBoardLayer(paintBoard)
 

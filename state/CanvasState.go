@@ -2,6 +2,7 @@ package state
 
 import (
 	"image"
+	"photo-man/core/image_io"
 	customUI "photo-man/ui/custom-ui"
 	"sync"
 
@@ -13,13 +14,16 @@ type CanvasState struct {
 	currentImage      image.Image
 	scaledImage       image.Image
 	originalImage     image.Image
+	imageCanvas       *customUI.CustomImageCanvas
 	canvasStack       *fyne.Container
 	cropState         *CropState
 	paintBoardState   *PaintBoardState
 	blurBoradState    *BlurBoardState
 	sharpenBoradState *SharpenBoardState
+	eyeDropState      *EyeDropState
 	communication     chan image.Image
 	canvasMutex       *sync.RWMutex
+	SystemColor       *image_io.SystemColor
 	format            string
 }
 
@@ -78,6 +82,18 @@ func (c *CanvasState) IsImageInCanvas() bool {
 
 func (c *CanvasState) SetImageInCanvs(isIn bool) {
 	c.imageInCanvas = isIn
+}
+
+func (c *CanvasState) SetCanvas(canvas *customUI.CustomImageCanvas) {
+	c.imageCanvas = canvas
+}
+
+func (c *CanvasState) GetCanvas() *customUI.CustomImageCanvas {
+	return c.imageCanvas
+}
+
+func (c *CanvasState) GetEyeDropState() *EyeDropState {
+	return c.eyeDropState
 }
 
 func (c *CanvasState) SetScaledImage(img image.Image) {
