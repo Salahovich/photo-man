@@ -24,5 +24,5 @@ func SharpenBoardAction(img image.Image, cs *state.SharpenBoardState) image.Imag
 }
 
 func RemoveSharpenBoardanvas(st *state.AppState) {
-	st.CanvasState.RemoveBlurBoardLayer()
+	st.CanvasState.RemoveSharpenBoardLayer()
 }

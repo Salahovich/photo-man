@@ -136,7 +136,7 @@ func (c *CanvasState) AddSharpenBoardLayer(layer *customUI.SharpenBoard) {
 
 func (c *CanvasState) RemoveSharpenBoardLayer() {
 	c.canvasStack.Remove(c.sharpenBoradState.GetSharpenBoardCanvas())
-	c.blurBoradState.DisableBlurBoard()
+	c.sharpenBoradState.DisableSharpenBoard()
 }
 
 func (c *CanvasState) AddCropLayer(layer *customUI.ResizableRectangle) {
