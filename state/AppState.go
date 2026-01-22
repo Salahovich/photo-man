@@ -39,8 +39,12 @@ func NewAppState(window fyne.Window) *AppState {
 				cropImageCanvas: &customUI.ResizableRectangle{},
 			},
 			paintBoardState: &PaintBoardState{
-				isPaintState: false,
+				isPaintState:     false,
 				paintBoardCanvas: &customUI.PaintBoard{},
+			},
+			blurBoradState: &BlurBoardState{
+				isBlurState:     false,
+				blurBoardCanvas: &customUI.BlurBoard{},
 			},
 		},
 		AdjustmentState: &AdjustmentState{
@@ -104,7 +108,12 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 
 	// paint the image
 	if s.CanvasState.GetPaintBoardState().CanPaint() {
-		img = image_paint.Brush(img, s.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBoard())
+		img = image_paint.BrushAction(img, s.CanvasState.GetPaintBoardState().GetPaintBoardCanvas().GetBoard())
+	}
+
+	// blur the image
+	if s.CanvasState.GetBlurBoardState().CanBlur() {
+		img = image_paint.BrushAction(img, s.CanvasState.GetBlurBoardState().blurBoardCanvas.GetBoard())
 	}
 
 	// rotate the image

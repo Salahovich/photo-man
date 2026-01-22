@@ -10,7 +10,6 @@ func spotKernelWindow(
 	getColor func(x, y int, img image.Image) uint16,
 	edgeHandler func(window [][]int32) ([][]int32, int)) ([][]int32, int) {
 
-	img.ColorModel()
 	// init result window
 	result := make([][]int32, kw)
 	for i := 0; i < kw; i++ {

@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"photo-man/assets"
+	"photo-man/core/image_filters"
 	event_actions "photo-man/event-actions"
 	"photo-man/state"
 	customUI "photo-man/ui/custom-ui"
@@ -185,4 +186,92 @@ func TransformationsDialog(st *state.AppState, itemWidget *customUI.ActionItemWi
 	flipVerticallyItem.Importance = widget.MediumImportance
 
 	return container.NewHBox(rotateLeftItem, rotateRightItem, flipHorizontallyItem, flipVerticallyItem)
+}
+
+func BlurBoardDialog(st *state.AppState, itemWidget *customUI.ActionItemWidget) *fyne.Container {
+	label := widget.NewLabel("Blur Brush:")
+	label.Alignment = fyne.TextAlignLeading
+	label.TextStyle = fyne.TextStyle{Bold: true}
+
+	// color picker
+
+	// brush slider
+	brushLabel := widget.NewLabel("brush size")
+	brushSlider := widget.NewSlider(1, 20)
+	brushSlider.OnChanged = func(value float64) {
+		st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().SetBrushSize(int(value))
+	}
+	sliderWrapper := container.New(layout.NewGridWrapLayout(fyne.NewSize(100, 35)), brushSlider)
+
+	blurTypeLabel := widget.NewLabel("Blur Type")
+
+	blurTypesList := widget.NewSelect([]string{"Shape Blur", "Gaussian Blur"}, func(choosen string) {
+		switch choosen {
+		case "Shape Blur":
+			st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().SetBlurType(image_filters.SHAPE_BLUR)
+		case "Gaussian Blur":
+			st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().SetBlurType(image_filters.GAUSSIAN_BLUR)
+		}
+	})
+
+	blurQualityLabel := widget.NewLabel("Blur Quality")
+
+	blurQualityList := widget.NewSelect([]string{"LOW", "MED", "HIGH"}, func(choosen string) {
+		switch choosen {
+		case "LOW":
+			st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().SetBlurHardness(image_filters.LOW_BLUR)
+		case "MED":
+			st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().SetBlurHardness(image_filters.MEDIUM_BLUR)
+		case "HIGH":
+			st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().SetBlurHardness(image_filters.HIGH_BLUR)
+		}
+	})
+
+	// eraser widget
+	var eraserBrush *customUI.ActionItemWidget
+	eraserBrush = customUI.NewActionItemWidget(assets.Eraser, func() {
+		st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().ToggleEraserBrush()
+		eraserBrush.Refresh()
+	})
+
+	// clear widget
+	clear := widget.NewButtonWithIcon("Clear", assets.Discard, func() {
+		st.CanvasState.GetBlurBoardState().GetBlurBoardCanvas().ClearBoard()
+	})
+
+	// apply button
+	apply := widget.NewButtonWithIcon("Apply", assets.Apply, func() {
+		var newImg image.Image
+		if st.CanvasState.GetBlurBoardState().CanBlur() {
+			newImg = event_actions.BlurBoardAction(st.CanvasState.GetCurrentImage(), st.CanvasState.GetBlurBoardState())
+			st.CanvasState.UpdateSceneImage(newImg)
+			event_actions.RemoveBlurBoardanvas(st)
+			st.RemoveToolDialog()
+			itemWidget.Importance = widget.LowImportance
+			itemWidget.Refresh()
+		}
+	})
+
+	// discard widget
+	discard := widget.NewButtonWithIcon("Discard", assets.Discard, func() {
+		event_actions.RemoveBlurBoardanvas(st)
+		st.RemoveToolDialog()
+		itemWidget.Importance = widget.LowImportance
+		itemWidget.Refresh()
+	})
+
+	// spacers
+	spacer1 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
+	spacer2 := container.New(layout.NewGridWrapLayout(fyne.NewSize(70, 35)), widget.NewToolbarSpacer().ToolbarObject())
+
+	brushTypeContainer := customUI.NewActionItemList(true, false, eraserBrush)
+
+	return container.NewHBox(
+		label, spacer1,
+		brushLabel, sliderWrapper,
+		blurTypeLabel, blurTypesList,
+		blurQualityLabel, blurQualityList,
+		brushTypeContainer.Box,
+		spacer2,
+		clear, apply, discard)
 }
