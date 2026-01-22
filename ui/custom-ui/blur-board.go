@@ -71,12 +71,7 @@ func (bb *BlurBoard) Dragged(ev *fyne.DragEvent) {
 			if x < 0 || x >= bb.bluredImage.Bounds().Dx() || y < 0 || y >= bb.bluredImage.Bounds().Dy() {
 				continue
 			}
-			_, _, _, a := bb.bluredImage.At(x, y).RGBA()
-
-			if a != 0 {
-				// ignore already blured pixels
-				continue
-			} else if bb.inEraserBrush {
+			if bb.inEraserBrush {
 				// erase blured pixels
 				bb.bluredImage.SetRGBA64(x, y, color.RGBA64{})
 			} else {

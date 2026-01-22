@@ -46,6 +46,10 @@ func NewAppState(window fyne.Window) *AppState {
 				isBlurState:     false,
 				blurBoardCanvas: &customUI.BlurBoard{},
 			},
+			sharpenBoradState: &SharpenBoardState{
+				isSharpenState:     false,
+				sharpenBoardCanvas: &customUI.SharpenBoard{},
+			},
 		},
 		AdjustmentState: &AdjustmentState{
 			Brightness: binding.NewFloat(),
@@ -114,6 +118,11 @@ func (s *AppState) ApplyAllModificationOnOriginalImage() image.Image {
 	// blur the image
 	if s.CanvasState.GetBlurBoardState().CanBlur() {
 		img = image_paint.BrushAction(img, s.CanvasState.GetBlurBoardState().blurBoardCanvas.GetBoard())
+	}
+
+	// sharpen the image
+	if s.CanvasState.GetSharpenBoardState().CanSharpen() {
+		img = image_paint.BrushAction(img, s.CanvasState.GetSharpenBoardState().sharpenBoardCanvas.GetBoard())
 	}
 
 	// rotate the image

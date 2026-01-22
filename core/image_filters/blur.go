@@ -61,27 +61,30 @@ const (
 func BlurForBrush(x, y int, old image.Image, blurType BLUR_TYPE, quality BLUR_QUALITY) color.Color {
 	switch quality {
 	case LOW_BLUR:
-		if blurType == SHAPE_BLUR {
+		switch blurType {
+		case SHAPE_BLUR:
 			return kernel_utils.ApplyKernelForBrush(x, y, old, low_blur_kernel)
-		} else if blurType == GAUSSIAN_BLUR {
+		case GAUSSIAN_BLUR:
 			return kernel_utils.ApplyKernelForBrush(x, y, old, low_gaussian_blur_kernel)
-		} else {
+		default:
 			return color.RGBA64{}
 		}
 	case MEDIUM_BLUR:
-		if blurType == SHAPE_BLUR {
+		switch blurType {
+		case SHAPE_BLUR:
 			return kernel_utils.ApplyKernelForBrush(x, y, old, medium_blur_kernel)
-		} else if blurType == GAUSSIAN_BLUR {
+		case GAUSSIAN_BLUR:
 			return kernel_utils.ApplyKernelForBrush(x, y, old, medium_gaussian_blur_kernel)
-		} else {
+		default:
 			return color.RGBA64{}
 		}
 	case HIGH_BLUR:
-		if blurType == SHAPE_BLUR {
+		switch blurType {
+		case SHAPE_BLUR:
 			return kernel_utils.ApplyKernelForBrush(x, y, old, high_blur_kernel)
-		} else if blurType == GAUSSIAN_BLUR {
+		case GAUSSIAN_BLUR:
 			return kernel_utils.ApplyKernelForBrush(x, y, old, high_gaussian_blur_kernel)
-		} else {
+		default:
 			return color.RGBA64{}
 		}
 	default:
