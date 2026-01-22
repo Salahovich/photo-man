@@ -71,9 +71,16 @@ func (bb *BlurBoard) Dragged(ev *fyne.DragEvent) {
 			if x < 0 || x >= bb.bluredImage.Bounds().Dx() || y < 0 || y >= bb.bluredImage.Bounds().Dy() {
 				continue
 			}
-			if bb.inEraserBrush {
+			_, _, _, a := bb.bluredImage.At(x, y).RGBA()
+
+			if a != 0 {
+				// ignore already blured pixels
+				continue
+			} else if bb.inEraserBrush {
+				// erase blured pixels
 				bb.bluredImage.SetRGBA64(x, y, color.RGBA64{})
 			} else {
+				// blur the target pixels inside the circle
 				distance := math.Round(math.Hypot(float64(pixel.X)-float64(x), float64(pixel.Y)-float64(y)))
 				if distance < radius {
 					r, g, b, a := image_filters.BlurForBrush(x, y, bb.originalImage, bb.blurType, bb.blurHardness).RGBA()
